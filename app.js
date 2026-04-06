@@ -24,12 +24,10 @@ async function carregarLoja() {
     dadosLoja = loja;
     document.getElementById('nome-loja').innerText = dadosLoja.nome;
     
-    // Aplica a foto como fundo do cabeçalho (se não tiver foto, não coloca nada e fica rosa)
     if(loja.logo_url) {
         document.getElementById('header-loja-bg').style.backgroundImage = `url('${loja.logo_url}')`;
     }
     
-    // Carrega a taxa no carrinho
     let taxa = Number(dadosLoja.taxa_entrega);
     document.getElementById('taxa-modal').innerText = taxa.toFixed(2);
     
@@ -64,7 +62,7 @@ async function carregarProdutos(idDaLoja) {
 window.adicionarAoCarrinho = function(nome, preco) {
     carrinho.push({ nome, preco });
     atualizarCarrinhoVisual();
-    alert(`"${nome}" adicionado ao carrinho!`);
+    // ALERTA REMOVIDO: O produto entra direto no carrinho agora!
 }
 
 window.removerDoCarrinho = function(index) {
@@ -118,6 +116,14 @@ window.abrirModal = function() {
 
 window.fecharModal = function() {
     document.getElementById('modal-carrinho').style.display = 'none';
+}
+
+// NOVA FUNÇÃO: Fechar modal ao clicar fora dele
+window.onclick = function(event) {
+    const modal = document.getElementById('modal-carrinho');
+    if (event.target === modal) {
+        fecharModal();
+    }
 }
 
 window.finalizarPedido = function() {

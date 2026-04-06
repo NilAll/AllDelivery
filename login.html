@@ -5,27 +5,110 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Lojista</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .login-box { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); width: 100%; max-width: 350px; text-align: center; }
-        .login-box h2 { color: #2f3542; margin-top: 0; margin-bottom: 20px; font-size: 1.5em; }
+        /* MUDANÇA: Habilita a rolagem suave quando clica no link dos planos */
+        html { scroll-behavior: smooth; }
+        
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: #f4f4f9; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            padding-top: 8vh; 
+            min-height: 100vh; 
+            margin: 0; 
+            box-sizing: border-box; 
+            padding-bottom: 50px;
+        }
+
+        /* O padrão "Card" para separar as caixas */
+        .card { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); 
+            width: 100%; 
+            max-width: 360px; 
+            text-align: center; 
+            margin-bottom: 20px; 
+            box-sizing: border-box;
+        }
+
+        .card h2 { color: #2f3542; margin-top: 0; margin-bottom: 20px; font-size: 1.5em; }
+        
         input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1em; }
-        .btn-entrar { width: 100%; background: #ff4757; color: white; border: none; padding: 12px; border-radius: 6px; font-size: 1em; font-weight: bold; cursor: pointer; transition: 0.2s; margin-bottom: 10px; }
+        
+        .btn-entrar { width: 100%; background: #ff4757; color: white; border: none; padding: 12px; border-radius: 6px; font-size: 1em; font-weight: bold; cursor: pointer; transition: 0.2s; margin-bottom: 10px; display: block; text-decoration: none; box-sizing: border-box; }
         .btn-entrar:hover { background: #ff6b81; }
-        .btn-voltar { display: block; width: 100%; background: #f1f2f6; color: #2f3542; text-decoration: none; padding: 12px; border-radius: 6px; font-size: 1em; font-weight: bold; box-sizing: border-box; transition: 0.2s; }
+        
+        .btn-voltar { display: block; width: 100%; background: #f1f2f6; color: #2f3542; text-decoration: none; padding: 12px; border-radius: 6px; font-size: 1em; font-weight: bold; box-sizing: border-box; transition: 0.2s; margin-bottom: 10px;}
         .btn-voltar:hover { background: #dfe4ea; }
+
+        .btn-planos { display: block; width: 100%; background: #eccc68; color: #2f3542; text-decoration: none; padding: 12px; border-radius: 6px; font-size: 1em; font-weight: bold; box-sizing: border-box; transition: 0.2s; margin-bottom: 10px; }
+        .btn-planos:hover { background: #f1c40f; }
+
+        .btn-cadastrar { display: block; width: 100%; background: #2ed573; color: white; text-decoration: none; padding: 12px; border-radius: 6px; font-size: 1em; font-weight: bold; box-sizing: border-box; transition: 0.2s; }
+        .btn-cadastrar:hover { background: #26b963; }
+
         #mensagem { margin-bottom: 15px; font-size: 0.9em; font-weight: bold; min-height: 20px; }
+
+        /* SEÇÃO DE PLANOS (Fica escondida abaixo da tela inicial) */
+        .planos-container {
+            margin-top: 60vh; /* Empurra os planos lá para baixo, fora da vista inicial */
+            padding-top: 40px; 
+            text-align: center;
+            width: 100%;
+            max-width: 400px;
+        }
+        .planos-container h2 { color: #2f3542; font-size: 1.8em; margin-bottom: 20px; }
+        
+        .plano-card { border: 2px solid #ff4757; border-radius: 15px; padding: 40px 30px; background: #fffafb; box-sizing: border-box; box-shadow: 0 10px 30px rgba(255, 71, 87, 0.1); }
+        .plano-preco { font-size: 3em; font-weight: bold; color: #2f3542; margin: 15px 0; }
+        .plano-preco span { font-size: 0.3em; color: #747d8c; font-weight: normal; }
+        .plano-lista { list-style: none; padding: 0; margin-bottom: 30px; line-height: 2.2; color: #57606f; font-size: 1.1em; text-align: left; }
     </style>
 </head>
 <body>
 
-    <div class="login-box">
+    <div class="card">
         <h2>Acesso do Lojista</h2>
         <input type="email" id="email" placeholder="Seu E-mail">
         <input type="password" id="senha" placeholder="Sua Senha">
+        
         <div id="mensagem"></div>
+
         <button class="btn-entrar" onclick="fazerLogin()">Entrar</button>
         <a href="index.html" class="btn-voltar">Voltar para o Mural</a>
     </div>
+
+    <div class="card" style="background-color: #fcfcfc;">
+        <h3 style="margin-top: 0; color: #747d8c; font-size: 1.1em;">Ainda não tem o seu cardápio?</h3>
+        
+        <a href="#planos" class="btn-planos">Confira nossos Planos e Preços</a>
+        <a href="cadastro.html" class="btn-cadastrar">Cadastrar Minha Loja</a>
+    </div>
+
+
+    <div class="planos-container" id="planos">
+        <h2>Comece a vender hoje!</h2>
+        
+        <div class="plano-card">
+            <h3 style="margin:0; color:#ff4757; font-size: 1.5em;">Plano Anual Único</h3>
+            <div class="plano-preco">R$ 197<span>/ano</span></div>
+            
+            <ul class="plano-lista">
+                <li>✅ Cardápio Digital Exclusivo</li>
+                <li>✅ Painel de Gerenciamento</li>
+                <li>✅ Link Próprio para o Instagram</li>
+                <li>✅ Pedidos direto no WhatsApp</li>
+                <li>❌ <b>Zero taxas por venda</b></li>
+            </ul>
+            
+            <a href="cadastro.html" class="btn-cadastrar">Quero Assinar Agora</a>
+            <a href="#" style="display: block; margin-top: 20px; color: #747d8c; text-decoration: none; font-size: 0.9em; font-weight: bold;">↑ Voltar ao topo</a>
+        </div>
+    </div>
+
 
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script>
@@ -47,7 +130,10 @@
             msg.innerText = "⏳ Verificando dados...";
             msg.style.color = "#747d8c";
 
-            const { data, error } = await db.auth.signInWithPassword({ email: email, password: password });
+            const { data, error } = await db.auth.signInWithPassword({
+                email: email,
+                password: password,
+            });
 
             if (error) {
                 msg.innerText = "❌ E-mail ou senha incorretos.";

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro - AllDelivery</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f9; display: flex; justify-content: center; align-items: flex-start; padding-top: 5vh; height: 100vh; margin: 0; box-sizing: border-box; }
+        .cadastro-box { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); width: 100%; max-width: 400px; text-align: center; margin: 0 15px; }
+        .cadastro-box h2 { color: #2f3542; margin-top: 0; margin-bottom: 10px; font-size: 1.5em; }
+        .cadastro-box p { color: #747d8c; font-size: 0.9em; margin-bottom: 25px; line-height: 1.5; }
+        
+        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1em; }
+        
+        .btn-enviar { width: 100%; background: #2ed573; color: white; border: none; padding: 15px; border-radius: 6px; font-size: 1.1em; font-weight: bold; cursor: pointer; transition: 0.2s; margin-bottom: 10px; display: block; box-sizing: border-box; }
+        .btn-enviar:hover { background: #26b963; }
+        
+        .btn-voltar { display: block; width: 100%; background: #f1f2f6; color: #2f3542; text-decoration: none; padding: 12px; border-radius: 6px; font-size: 1em; font-weight: bold; box-sizing: border-box; transition: 0.2s; }
+        .btn-voltar:hover { background: #dfe4ea; }
+
+        .alerta-pix { background: #fff3cd; color: #856404; padding: 15px; border-radius: 6px; font-size: 0.85em; margin-bottom: 20px; border: 1px solid #ffeeba; text-align: left; }
+    </style>
+</head>
+<body>
+
+    <div class="cadastro-box">
+        <h2>Crie seu Catálogo</h2>
+        <p>Preencha os dados abaixo. Você será redirecionado ao WhatsApp do Master para finalizar o pagamento e liberar seu acesso.</p>
+        
+        <input type="text" id="cad-nome" placeholder="Seu Nome Completo">
+        <input type="text" id="cad-loja" placeholder="Nome da Loja (Ex: Pizzaria Roma)">
+        <input type="email" id="cad-email" placeholder="E-mail (Será seu login)">
+        <input type="tel" id="cad-whats" placeholder="WhatsApp da sua Loja">
+
+        <div class="alerta-pix">
+            <strong>⚠️ Atenção:</strong> Ao clicar em cadastrar, você receberá a Chave PIX. Seu painel será liberado imediatamente após o envio do comprovante.
+        </div>
+
+        <button class="btn-enviar" onclick="enviarCadastro()">Finalizar Cadastro</button>
+        <a href="login.html" class="btn-voltar">Voltar</a>
+    </div>
+
+    <script>
+        function enviarCadastro() {
+            const nome = document.getElementById('cad-nome').value;
+            const loja = document.getElementById('cad-loja').value;
+            const email = document.getElementById('cad-email').value;
+            const whats = document.getElementById('cad-whats').value;
+
+            if(!nome || !loja || !email || !whats) {
+                alert("Por favor, preencha todos os campos!");
+                return;
+            }
+
+            // Sua Chave PIX para o lojista pagar
+            const suaChavePix = "SUA_CHAVE_PIX_AQUI"; 
+            
+            // O texto que vai chegar no SEU WhatsApp
+            let mensagem = `*NOVO CADASTRO - ALLDELIVERY* 🚀\n\n`;
+            mensagem += `*Responsável:* ${nome}\n`;
+            mensagem += `*Loja:* ${loja}\n`;
+            mensagem += `*E-mail de Acesso:* ${email}\n`;
+            mensagem += `*WhatsApp da Loja:* ${whats}\n\n`;
+            mensagem += `=========================\n`;
+            mensagem += `*INSTRUÇÕES PARA LIBERAÇÃO:*\n`;
+            mensagem += `O valor do plano anual é R$ 197,00.\n\n`;
+            mensagem += `Realize o PIX para a chave abaixo:\n`;
+            mensagem += `*${5591989213312}*\n\n`;
+            mensagem += `_Envie o comprovante nesta mesma conversa. Assim que confirmado, criaremos seu acesso no sistema e te enviaremos a senha!_`;
+
+            // COLOQUE SEU NÚMERO DE WHATSAPP AQUI (Com 55 e DDD)
+            const seuNumeroMaster = "5591989213312"; 
+
+            const urlWhatsApp = `https://wa.me/${seuNumeroMaster}?text=${encodeURIComponent(mensagem)}`;
+            
+            // Redireciona o lojista
+            window.location.href = urlWhatsApp;
+        }
+    </script>
+</body>
+</html>
