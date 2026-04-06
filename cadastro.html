@@ -30,7 +30,9 @@
         <input type="text" id="cad-nome" placeholder="Seu Nome Completo">
         <input type="text" id="cad-loja" placeholder="Nome da Loja (Ex: Pizzaria Roma)">
         <input type="email" id="cad-email" placeholder="E-mail (Será seu login)">
-        <input type="tel" id="cad-whats" placeholder="WhatsApp da sua Loja">
+        <input type="tel" id="cad-whats" placeholder="WhatsApp da sua Loja (com DDD)">
+        
+        <input type="text" id="cad-senha" placeholder="Crie uma Senha (mínimo 6 letras/números)">
 
         <div class="alerta-pix">
             <strong>⚠️ Atenção:</strong> Ao clicar em cadastrar, você receberá a Chave PIX. Seu painel será liberado imediatamente após o envio do comprovante.
@@ -46,9 +48,15 @@
             const loja = document.getElementById('cad-loja').value;
             const email = document.getElementById('cad-email').value;
             const whats = document.getElementById('cad-whats').value;
+            const senha = document.getElementById('cad-senha').value;
 
-            if(!nome || !loja || !email || !whats) {
+            if(!nome || !loja || !email || !whats || !senha) {
                 alert("Por favor, preencha todos os campos!");
+                return;
+            }
+
+            if(senha.length < 6) {
+                alert("A senha precisa ter pelo menos 6 caracteres.");
                 return;
             }
 
@@ -60,13 +68,14 @@
             mensagem += `*Responsável:* ${nome}\n`;
             mensagem += `*Loja:* ${loja}\n`;
             mensagem += `*E-mail de Acesso:* ${email}\n`;
-            mensagem += `*WhatsApp da Loja:* ${whats}\n\n`;
+            mensagem += `*WhatsApp da Loja:* ${whats}\n`;
+            mensagem += `*Senha Desejada:* ${senha}\n\n`;
             mensagem += `=========================\n`;
             mensagem += `*INSTRUÇÕES PARA LIBERAÇÃO:*\n`;
             mensagem += `O valor do plano anual é R$ 197,00.\n\n`;
             mensagem += `Realize o PIX para a chave abaixo:\n`;
             mensagem += `*${5591989213312}*\n\n`;
-            mensagem += `_Envie o comprovante nesta mesma conversa. Assim que confirmado, criaremos seu acesso no sistema e te enviaremos a senha!_`;
+            mensagem += `_Envie o comprovante nesta mesma conversa. Assim que confirmado, ativaremos seu painel!_`;
 
             // COLOQUE SEU NÚMERO DE WHATSAPP AQUI (Com 55 e DDD)
             const seuNumeroMaster = "5591989213312"; 
