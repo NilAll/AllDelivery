@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Pedidos</title>
+    <style>
+        /* CSS Básico Mobile-First */
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f9; padding-bottom: 70px; }
+        .header { background: #ff4757; color: white; padding: 20px; text-align: center; }
+        .produto { background: white; margin: 10px; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
+        .produto-info h3 { margin: 0 0 5px 0; }
+        .btn-add { background: #2ed573; color: white; border: none; padding: 10px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        .carrinho-bar { position: fixed; bottom: 0; width: 100%; background: #2f3542; color: white; padding: 15px; text-align: center; box-sizing: border-box; display: flex; justify-content: space-between; }
+        .btn-finalizar { background: #2ed573; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div style="background: #2f3542; padding: 10px; text-align: center;">
+    <a href="landing.html" style="color: white; text-decoration: none; font-weight: bold; font-size: 14px;">🏠 Ver todas as lojas</a>
+    </div>
+
+    <div class="header">
+        <h1 id="nome-loja">Carregando loja...</h1>
+        <p>Taxa de entrega: R$ <span id="taxa-entrega">0.00</span></p>
+    </div>
+
+    <div id="lista-produtos">
+        </div>
+
+    <div class="carrinho-bar">
+        <div>
+            Total: R$ <span id="total-carrinho">0.00</span>
+        </div>
+        <button class="btn-finalizar" onclick="finalizarPedido()">Finalizar no WhatsApp</button>
+    </div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    
+    <script src="app.js"></script>
+
+</body>
+</html>

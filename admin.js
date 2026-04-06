@@ -21,7 +21,8 @@ async function buscarLojaDoUsuario(userId) {
     idDaLojaLogada = loja.id;
     document.getElementById('nome-loja-admin').innerText = loja.nome;
 
-    const urlCompleta = `${window.location.origin}/index.html?loja=${loja.slug}`;
+    // AQUI MUDOU: Gera o link de vendas usando o novo arquivo loja.html
+    const urlCompleta = `${window.location.origin}/loja.html?loja=${loja.slug}`;
     document.getElementById('url-loja').value = urlCompleta;
     document.getElementById('btn-ver-loja').href = urlCompleta;
 
@@ -74,13 +75,11 @@ async function removerProduto(idProduto) {
     }
 }
 
-// NOVA FUNÇÃO DE UPLOAD DE ARQUIVO
 window.fazerUploadFoto = async function() {
     const inputArquivo = document.getElementById('foto-loja-file');
     const msg = document.getElementById('msg-upload');
     const botao = document.getElementById('btn-upload');
     
-    // Verifica se o lojista realmente escolheu um arquivo
     if (inputArquivo.files.length === 0) {
         msg.innerText = "Por favor, selecione uma foto primeiro!";
         msg.style.color = "#ff4757";
@@ -89,16 +88,13 @@ window.fazerUploadFoto = async function() {
 
     const arquivo = inputArquivo.files[0];
     
-    // Muda visualmente para mostrar que está carregando
     msg.innerText = "⏳ Enviando foto... aguarde.";
     msg.style.color = "#e67e22";
     botao.disabled = true;
 
-    // 1. Cria um nome único para a foto (ID da loja + data atual) para não substituir outras fotos
     const extensao = arquivo.name.split('.').pop();
     const nomeArquivo = `loja_${idDaLojaLogada}_${Date.now()}.${extensao}`;
 
-    // 2. Envia o arquivo lá para a pasta 'logos' do Supabase Storage
     const { data: uploadData, error: uploadError } = await db.storage
         .from('logos')
         .upload(nomeArquivo, arquivo);
@@ -111,11 +107,9 @@ window.fazerUploadFoto = async function() {
         return;
     }
 
-    // 3. Pega o link público final que o Supabase gerou para essa foto
     const { data: publicUrlData } = db.storage.from('logos').getPublicUrl(nomeArquivo);
     const linkDaFoto = publicUrlData.publicUrl;
 
-    // 4. Salva esse link no banco de dados, na linha desta loja
     const { error: dbError } = await db
         .from('lojas')
         .update({ logo_url: linkDaFoto })
@@ -139,9 +133,10 @@ window.copiarLink = function() {
     alert("Link copiado para a área de transferência!");
 }
 
+// AQUI MUDOU: Ao sair, volta para o index.html
 window.sair = async function() {
     await db.auth.signOut();
-    window.location.href = "landing.html"; 
+    window.location.href = "index.html"; 
 }
 
 window.salvarProduto = salvarProduto;

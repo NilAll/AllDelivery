@@ -24,7 +24,6 @@ async function carregarMural() {
     }
 
     lojas.forEach(loja => {
-        // Se a loja tiver o 'logo_url' do Supabase, usa ele. Se não, usa uma foto padrão de comida.
         const foto = loja.logo_url || 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400';
         
         container.innerHTML += `
@@ -35,7 +34,7 @@ async function carregarMural() {
                         <h3>${loja.nome}</h3>
                         <p>Entrega: R$ ${Number(loja.taxa_entrega).toFixed(2)}</p>
                     </div>
-                    <a href="index.html?loja=${loja.slug}" class="btn-acessar">Ver Cardápio</a>
+                    <a href="loja.html?loja=${loja.slug}" class="btn-acessar">Ver Cardápio</a>
                 </div>
             </div>
         `;
