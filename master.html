@@ -6,161 +6,134 @@
     <title>Painel MASTER - AllDelivery</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #2f3542; margin: 0; padding: 20px; color: #333; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; box-sizing: border-box; }
-        
-        .master-box { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); width: 100%; max-width: 500px; margin-top: 20px; border-top: 5px solid #ff4757; }
-        
-        .master-box h1 { margin-top: 0; color: #2f3542; font-size: 1.8em; text-align: center; }
-        .master-box p { text-align: center; color: #747d8c; margin-bottom: 25px; }
-
+        .master-box { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); width: 100%; max-width: 600px; margin-top: 20px; border-top: 5px solid #ff4757; }
+        h1 { margin-top: 0; color: #2f3542; font-size: 1.8em; text-align: center; }
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .tab-btn { flex: 1; padding: 10px; border: none; background: #f1f2f6; cursor: pointer; font-weight: bold; border-radius: 6px; }
+        .tab-btn.active { background: #ff4757; color: white; }
         label { font-weight: bold; font-size: 0.9em; color: #57606f; display: block; margin-bottom: 5px; }
         input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1em; background: #f8f9fa; }
-        
         .slug-box { background: #eccc68; padding: 10px; border-radius: 6px; margin-bottom: 20px; text-align: center; font-family: monospace; font-weight: bold; color: #d35400; }
-
-        .btn-criar { width: 100%; background: #ff4757; color: white; border: none; padding: 15px; border-radius: 6px; font-size: 1.1em; font-weight: bold; cursor: pointer; transition: 0.2s; }
-        .btn-criar:hover { background: #ff6b81; }
-
-        #msg, #msg-login { text-align: center; font-weight: bold; margin-top: 15px; min-height: 20px; }
+        .btn-acao { width: 100%; background: #ff4757; color: white; border: none; padding: 15px; border-radius: 6px; font-size: 1.1em; font-weight: bold; cursor: pointer; transition: 0.2s; margin-bottom: 10px; }
+        .btn-acao:hover { background: #ff6b81; }
+        .loja-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #eee; }
+        .loja-info { font-size: 0.9em; }
+        .btn-small { padding: 5px 10px; font-size: 0.8em; border-radius: 4px; border: none; cursor: pointer; font-weight: bold; margin-left: 5px; }
+        .btn-del { background: #ff4757; color: white; }
+        .btn-reset { background: #eccc68; color: #2f3542; }
     </style>
 </head>
 <body>
 
     <div class="master-box" id="tela-login-master">
         <h1>Acesso Restrito 🛑</h1>
-        <p>Área exclusiva para o Administrador do Sistema.</p>
-        
-        <label>Senha Master:</label>
-        <input type="password" id="input-senha-master" placeholder="Digite a senha secreta">
-        <button class="btn-criar" onclick="destravarPainel()">Entrar no Painel</button>
-        <div id="msg-login"></div>
-        <a href="index.html" style="display: block; text-align: center; margin-top: 15px; color: #747d8c; text-decoration: none;">Voltar para Home</a>
+        <input type="password" id="input-senha-master" placeholder="Senha secreta">
+        <button class="btn-acao" onclick="destravarPainel()">Entrar</button>
     </div>
 
     <div class="master-box" id="tela-painel-master" style="display: none;">
         <h1>Painel Master 👑</h1>
-        <p>Libere o acesso de novos clientes após o PIX.</p>
-
-        <label>Nome da Loja (Do Cliente):</label>
-        <input type="text" id="m-nome" placeholder="Ex: Pizzaria do João" oninput="gerarSlugAutomatica()">
-
-        <div class="slug-box" id="m-slug-preview">
-            Link: seudominio.com/loja.html?loja=...
+        
+        <div class="tabs">
+            <button class="tab-btn active" onclick="mudarTab('cadastrar')">Novo Cadastro</button>
+            <button class="tab-btn" onclick="mudarTab('gerenciar')">Gerenciar Lojas</button>
         </div>
-        <input type="hidden" id="m-slug">
 
-        <label>WhatsApp da Loja (Do Cliente):</label>
-        <input type="text" id="m-whats" placeholder="Ex: 5511999999999">
+        <div id="tab-cadastrar">
+            <label>Nome da Loja:</label>
+            <input type="text" id="m-nome" oninput="gerarSlugAutomatica()">
+            <div class="slug-box" id="m-slug-preview">Link: /loja.html?loja=...</div>
+            <input type="hidden" id="m-slug">
+            <label>WhatsApp:</label>
+            <input type="text" id="m-whats" placeholder="55...">
+            <label>E-mail:</label>
+            <input type="email" id="m-email">
+            <label>Senha:</label>
+            <input type="text" id="m-senha">
+            <button class="btn-acao" onclick="criarCliente()" id="btn-submit">Criar Conta e Loja</button>
+        </div>
 
-        <label>E-mail de Login (Do Cliente):</label>
-        <input type="email" id="m-email" placeholder="email@cliente.com">
+        <div id="tab-gerenciar" style="display: none;">
+            <div id="lista-lojas-master">Carregando lojas...</div>
+        </div>
 
-        <label>Senha Desejada:</label>
-        <input type="text" id="m-senha" placeholder="Senha com no mínimo 6 caracteres">
-
-        <button class="btn-criar" onclick="criarCliente()" id="btn-submit">Criar Conta e Loja</button>
-        <div id="msg"></div>
+        <div id="msg" style="text-align: center; font-weight: bold; margin-top: 15px;"></div>
     </div>
 
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script>
-        function destravarPainel() {
-            const senhaDigitada = document.getElementById('input-senha-master').value;
-            const msgLogin = document.getElementById('msg-login');
-
-            // COLOQUE A SUA SENHA MASTER AQUI ENTRE AS ASPAS
-            const senhaCorreta = "admin1teste102030@"; 
-
-            if (senhaDigitada === senhaCorreta) {
-                document.getElementById('tela-login-master').style.display = 'none';
-                document.getElementById('tela-painel-master').style.display = 'block';
-            } else {
-                msgLogin.innerText = "❌ Senha incorreta!";
-                msgLogin.style.color = "#ff4757";
-            }
-        }
-
         const supabaseUrl = 'https://eyslsyyctmokrbuwoprk.supabase.co';
         const supabaseKey = 'sb_publishable_t9cAvHh2w-VWP3zxwSndmA_x0FPqsM1';
         const db = window.supabase.createClient(supabaseUrl, supabaseKey);
 
+        function destravarPainel() {
+            if (document.getElementById('input-senha-master').value === "admin1teste102030@") {
+                document.getElementById('tela-login-master').style.display = 'none';
+                document.getElementById('tela-painel-master').style.display = 'block';
+                listarLojas();
+            } else { alert("Senha incorreta!"); }
+        }
+
+        function mudarTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('tab-cadastrar').style.display = tab === 'cadastrar' ? 'block' : 'none';
+            document.getElementById('tab-gerenciar').style.display = tab === 'gerenciar' ? 'block' : 'none';
+            if(tab === 'gerenciar') listarLojas();
+        }
+
         function gerarSlugAutomatica() {
             const nome = document.getElementById('m-nome').value;
-            let slug = nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
-            slug = slug.replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim();
-            
+            let slug = nome.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').trim();
             document.getElementById('m-slug').value = slug;
-            
-            if (slug) {
-                document.getElementById('m-slug-preview').innerText = `Link: /loja.html?loja=${slug}`;
-            } else {
-                document.getElementById('m-slug-preview').innerText = `Link: aguardando nome...`;
-            }
+            document.getElementById('m-slug-preview').innerText = `Link: /loja.html?loja=${slug}`;
         }
 
         async function criarCliente() {
+            const email = document.getElementById('m-email').value;
+            const senha = document.getElementById('m-senha').value;
             const nome = document.getElementById('m-nome').value;
             const slug = document.getElementById('m-slug').value;
             const whats = document.getElementById('m-whats').value;
-            const email = document.getElementById('m-email').value;
-            const senha = document.getElementById('m-senha').value;
-            const msg = document.getElementById('msg');
-            const btn = document.getElementById('btn-submit');
 
-            if (!nome || !slug || !whats || !email || !senha) {
-                msg.innerText = "Preencha todos os campos!";
-                msg.style.color = "#ff4757";
-                return;
-            }
-
-            btn.disabled = true;
-            msg.innerText = "⏳ Criando usuário de acesso...";
-            msg.style.color = "#747d8c";
-
-            await db.auth.signOut();
-
-            const { data: authData, error: authError } = await db.auth.signUp({
-                email: email,
-                password: senha,
-            });
-
-            if (authError) {
-                msg.innerText = "❌ Erro ao criar login: " + authError.message;
-                msg.style.color = "#ff4757";
-                btn.disabled = false;
-                return;
-            }
-
-            const userId = authData.user.id;
-
-            msg.innerText = "⏳ Criando banco de dados da loja...";
+            const { data: authData, error: authError } = await db.auth.signUp({ email, password: senha });
+            if (authError) { alert("Erro Auth: " + authError.message); return; }
 
             const { error: dbError } = await db.from('lojas').insert([{
-                user_id: userId,
-                nome: nome,
-                slug: slug,
-                whatsapp: whats,
-                taxa_entrega: 0,
-                ativa: true,
-                chave_pix: '' // SOLUÇÃO AQUI: Enviando vazio para não dar erro de "Not Null" no banco
+                user_id: authData.user.id, nome, slug, whatsapp: whats, ativa: true, chave_pix: ''
             }]);
 
-            if (dbError) {
-                msg.innerText = "❌ Erro ao criar loja: " + dbError.message;
-                msg.style.color = "#ff4757";
-                btn.disabled = false;
-                return;
+            if (dbError) alert("Erro Banco: " + dbError.message);
+            else { alert("Sucesso!"); listarLojas(); }
+        }
+
+        async function listarLojas() {
+            const { data: lojas } = await db.from('lojas').select('*').order('nome');
+            const lista = document.getElementById('lista-lojas-master');
+            lista.innerHTML = '';
+            lojas.forEach(loja => {
+                lista.innerHTML += `
+                    <div class="loja-item">
+                        <div class="loja-info"><strong>${loja.nome}</strong><br>${loja.slug}</div>
+                        <div>
+                            <button class="btn-small btn-reset" onclick="resetarSenha('${loja.user_id}')">Resetar Senha</button>
+                            <button class="btn-small btn-del" onclick="excluirLoja('${loja.id}')">Excluir</button>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        async function excluirLoja(id) {
+            if(confirm("Excluir esta loja?")) {
+                await db.from('lojas').delete().eq('id', id);
+                listarLojas();
             }
+        }
 
-            msg.innerText = "✅ Cliente cadastrado com sucesso! Acesso liberado.";
-            msg.style.color = "#2ed573";
-            
-            document.getElementById('m-nome').value = '';
-            document.getElementById('m-whats').value = '';
-            document.getElementById('m-email').value = '';
-            document.getElementById('m-senha').value = '';
-            gerarSlugAutomatica();
-
-            btn.disabled = false;
+        async function resetarSenha(userId) {
+            // No Master, como não temos o e-mail fácil aqui, buscamos na tabela se necessário.
+            // Mas o ideal é o próprio lojista pedir no login.
+            alert("Acesse o banco de dados ou peça para o lojista usar o 'Esqueci minha senha' no login.");
         }
     </script>
 </body>
