@@ -20,8 +20,9 @@ async function buscarLojaDoUsuario(userId) {
 
     idDaLojaLogada = loja.id;
     document.getElementById('nome-loja-admin').innerText = loja.nome;
+    
+    document.getElementById('taxa-entrega-admin').value = Number(loja.taxa_entrega).toFixed(2);
 
-    // AQUI MUDOU: Gera o link de vendas usando o novo arquivo loja.html
     const urlCompleta = `${window.location.origin}/loja.html?loja=${loja.slug}`;
     document.getElementById('url-loja').value = urlCompleta;
     document.getElementById('btn-ver-loja').href = urlCompleta;
@@ -87,7 +88,6 @@ window.fazerUploadFoto = async function() {
     }
 
     const arquivo = inputArquivo.files[0];
-    
     msg.innerText = "⏳ Enviando foto... aguarde.";
     msg.style.color = "#e67e22";
     botao.disabled = true;
@@ -95,13 +95,11 @@ window.fazerUploadFoto = async function() {
     const extensao = arquivo.name.split('.').pop();
     const nomeArquivo = `loja_${idDaLojaLogada}_${Date.now()}.${extensao}`;
 
-    const { data: uploadData, error: uploadError } = await db.storage
-        .from('logos')
-        .upload(nomeArquivo, arquivo);
+    const { data: uploadData, error: uploadError } = await db.storage.from('logos').upload(nomeArquivo, arquivo);
 
     if (uploadError) {
-        console.error(uploadError);
-        msg.innerText = "❌ Erro ao enviar arquivo. Verifique se criou o Bucket 'logos' no SQL.";
+        console.error("Erro no Upload:", uploadError);
+        msg.innerText = "❌ Erro no envio: " + uploadError.message;
         msg.style.color = "#ff4757";
         botao.disabled = false;
         return;
@@ -110,20 +108,35 @@ window.fazerUploadFoto = async function() {
     const { data: publicUrlData } = db.storage.from('logos').getPublicUrl(nomeArquivo);
     const linkDaFoto = publicUrlData.publicUrl;
 
-    const { error: dbError } = await db
-        .from('lojas')
-        .update({ logo_url: linkDaFoto })
-        .eq('id', idDaLojaLogada);
+    const { error: dbError } = await db.from('lojas').update({ logo_url: linkDaFoto }).eq('id', idDaLojaLogada);
 
     if (dbError) {
-        msg.innerText = "❌ Erro ao vincular foto à loja.";
+        console.error("Erro no Banco de Dados:", dbError);
+        msg.innerText = "❌ Erro do Banco: " + dbError.message; // Agora a tela avisa exatamente o erro
         msg.style.color = "#ff4757";
     } else {
-        msg.innerText = "✅ Foto atualizada com sucesso! Verifique no Mural.";
+        msg.innerText = "✅ Foto atualizada com sucesso!";
         msg.style.color = "#2ed573";
     }
     
     botao.disabled = false;
+}
+
+window.salvarTaxa = async function() {
+    const novaTaxa = parseFloat(document.getElementById('taxa-entrega-admin').value);
+    
+    if (isNaN(novaTaxa) || novaTaxa < 0) {
+        alert("Por favor, digite um valor de taxa válido.");
+        return;
+    }
+
+    const { error } = await db.from('lojas').update({ taxa_entrega: novaTaxa }).eq('id', idDaLojaLogada);
+
+    if (error) {
+        alert("Erro ao salvar a taxa de entrega.");
+    } else {
+        alert("Taxa de entrega atualizada com sucesso!");
+    }
 }
 
 window.copiarLink = function() {
@@ -133,7 +146,6 @@ window.copiarLink = function() {
     alert("Link copiado para a área de transferência!");
 }
 
-// AQUI MUDOU: Ao sair, volta para o index.html
 window.sair = async function() {
     await db.auth.signOut();
     window.location.href = "index.html"; 

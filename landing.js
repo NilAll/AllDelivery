@@ -24,6 +24,7 @@ async function carregarMural() {
     }
 
     lojas.forEach(loja => {
+        // Usa a foto do banco, ou uma imagem padrão se a loja não tiver foto
         const foto = loja.logo_url || 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400';
         
         container.innerHTML += `
@@ -32,7 +33,6 @@ async function carregarMural() {
                 <div class="loja-card-content">
                     <div>
                         <h3>${loja.nome}</h3>
-                        <p>Entrega: R$ ${Number(loja.taxa_entrega).toFixed(2)}</p>
                     </div>
                     <a href="loja.html?loja=${loja.slug}" class="btn-acessar">Ver Cardápio</a>
                 </div>

@@ -1,71 +1,55 @@
-// 1. Inicializa o Supabase
 const supabaseUrl = 'https://eyslsyyctmokrbuwoprk.supabase.co';
 const supabaseKey = 'sb_publishable_t9cAvHh2w-VWP3zxwSndmA_x0FPqsM1';
-
-// MUDANÇA CRÍTICA AQUI: Mudamos o nome da variável para 'db' para não conflitar com a biblioteca
 const db = window.supabase.createClient(supabaseUrl, supabaseKey);
 
-// Variáveis globais
 let carrinho = [];
 let dadosLoja = {};
 
-// 2. Pega o slug da loja pela URL (ex: ?loja=teste)
 const urlParams = new URLSearchParams(window.location.search);
 const lojaSlug = urlParams.get('loja');
 
 async function carregarLoja() {
     if (!lojaSlug) {
-        document.getElementById('nome-loja').innerText = "Link de loja inválido.";
+        document.getElementById('nome-loja').innerText = "Loja não informada.";
         return;
     }
 
-    // 3. Busca dados da Loja no Supabase usando o 'db'
-    const { data: loja, error } = await db
-        .from('lojas')
-        .select('*')
-        .eq('slug', lojaSlug)
-        .eq('ativa', true)
-        .single(); // Garante que retorna apenas um registro
+    const { data: loja, error } = await db.from('lojas').select('*').eq('slug', lojaSlug).eq('ativa', true).single();
 
     if (error || !loja) {
-        console.error("Erro ao buscar loja:", error);
-        document.getElementById('nome-loja').innerText = "Loja não encontrada ou inativa.";
+        document.getElementById('nome-loja').innerText = "Loja não encontrada.";
         return;
     }
 
     dadosLoja = loja;
     document.getElementById('nome-loja').innerText = dadosLoja.nome;
-    document.getElementById('taxa-entrega').innerText = Number(dadosLoja.taxa_entrega).toFixed(2);
+    
+    // Aplica a foto como fundo do cabeçalho (se não tiver foto, não coloca nada e fica rosa)
+    if(loja.logo_url) {
+        document.getElementById('header-loja-bg').style.backgroundImage = `url('${loja.logo_url}')`;
+    }
+    
+    // Carrega a taxa no carrinho
+    let taxa = Number(dadosLoja.taxa_entrega);
+    document.getElementById('taxa-modal').innerText = taxa.toFixed(2);
     
     carregarProdutos(dadosLoja.id);
 }
 
 async function carregarProdutos(idDaLoja) {
-    // 4. Busca os produtos no Supabase atrelados ao ID da loja usando o 'db'
-    const { data: produtos, error } = await db
-        .from('produtos')
-        .select('*')
-        .eq('loja_id', idDaLoja)
-        .eq('disponivel', true);
-
-    if (error) {
-        console.error("Erro ao buscar produtos:", error);
-        return;
-    }
-
+    const { data: produtos, error } = await db.from('produtos').select('*').eq('loja_id', idDaLoja).eq('disponivel', true);
     const listaHTML = document.getElementById('lista-produtos');
     listaHTML.innerHTML = '';
 
-    if (produtos.length === 0) {
-        listaHTML.innerHTML = '<p style="text-align:center; padding: 20px;">Nenhum produto disponível no momento.</p>';
+    if (error || produtos.length === 0) {
+        listaHTML.innerHTML = '<p style="text-align:center;">Nenhum produto disponível.</p>';
         return;
     }
 
     produtos.forEach((produto) => {
         let preco = Number(produto.preco);
-        
         listaHTML.innerHTML += `
-            <div class="produto">
+            <div class="produto-card">
                 <div class="produto-info">
                     <h3>${produto.nome}</h3>
                     <p>${produto.descricao || ''}</p>
@@ -77,24 +61,67 @@ async function carregarProdutos(idDaLoja) {
     });
 }
 
-// 5. Funções do Carrinho e WhatsApp
-function adicionarAoCarrinho(nome, preco) {
+window.adicionarAoCarrinho = function(nome, preco) {
     carrinho.push({ nome, preco });
-    atualizarCarrinho();
+    atualizarCarrinhoVisual();
+    alert(`"${nome}" adicionado ao carrinho!`);
 }
 
-function atualizarCarrinho() {
+window.removerDoCarrinho = function(index) {
+    carrinho.splice(index, 1);
+    atualizarCarrinhoVisual();
+    renderizarItensNoModal();
+}
+
+function atualizarCarrinhoVisual() {
     let subtotal = carrinho.reduce((sum, item) => sum + item.preco, 0);
-    let taxa = Number(dadosLoja.taxa_entrega);
-    let total = subtotal + taxa;
-    document.getElementById('total-carrinho').innerText = total.toFixed(2);
+    document.getElementById('qtd-itens').innerText = carrinho.length;
+    document.getElementById('total-barra').innerText = subtotal.toFixed(2);
+    
+    document.getElementById('subtotal-modal').innerText = subtotal.toFixed(2);
+    let taxa = Number(dadosLoja.taxa_entrega || 0);
+    let totalComTaxa = subtotal + taxa;
+    
+    if (carrinho.length === 0) {
+        document.getElementById('total-final-modal').innerText = "0.00";
+    } else {
+        document.getElementById('total-final-modal').innerText = totalComTaxa.toFixed(2);
+    }
 }
 
-function finalizarPedido() {
+function renderizarItensNoModal() {
+    const listaModal = document.getElementById('itens-modal');
+    listaModal.innerHTML = '';
+
     if (carrinho.length === 0) {
-        alert("Seu carrinho está vazio!");
+        listaModal.innerHTML = '<p style="text-align:center; color:#747d8c;">Seu carrinho está vazio.</p>';
         return;
     }
+
+    carrinho.forEach((item, index) => {
+        listaModal.innerHTML += `
+            <div class="item-carrinho">
+                <div>
+                    <div class="item-nome">1x ${item.nome}</div>
+                    <div class="item-preco">R$ ${item.preco.toFixed(2)}</div>
+                </div>
+                <button class="btn-remover-item" onclick="removerDoCarrinho(${index})">🗑️ Excluir</button>
+            </div>
+        `;
+    });
+}
+
+window.abrirModal = function() {
+    renderizarItensNoModal();
+    document.getElementById('modal-carrinho').style.display = 'flex';
+}
+
+window.fecharModal = function() {
+    document.getElementById('modal-carrinho').style.display = 'none';
+}
+
+window.finalizarPedido = function() {
+    if (carrinho.length === 0) { alert("Adicione itens para finalizar!"); return; }
 
     let mensagem = `*Novo Pedido - ${dadosLoja.nome}* 🛵\n\n`;
     let subtotal = 0;
@@ -110,18 +137,10 @@ function finalizarPedido() {
     mensagem += `\n*Subtotal:* R$ ${subtotal.toFixed(2)}\n`;
     mensagem += `*Taxa de Entrega:* R$ ${taxa.toFixed(2)}\n`;
     mensagem += `*TOTAL:* R$ ${total.toFixed(2)}\n\n`;
-    
-    mensagem += `*Pagamento via PIX:*\n`;
-    mensagem += `Chave: ${dadosLoja.chave_pix}\n\n`;
-    mensagem += `_Envie o comprovante e seu endereço aqui em baixo para iniciarmos o preparo!_`;
+    mensagem += `_Envie o seu endereço aqui em baixo para calcularmos o tempo de entrega!_`;
 
     let urlWhatsApp = `https://wa.me/${dadosLoja.whatsapp}?text=${encodeURIComponent(mensagem)}`;
     window.open(urlWhatsApp, '_blank');
 }
 
-// Expõe as funções para os botões do HTML
-window.adicionarAoCarrinho = adicionarAoCarrinho;
-window.finalizarPedido = finalizarPedido;
-
-// Inicia o carregamento
 carregarLoja();

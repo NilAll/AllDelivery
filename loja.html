@@ -3,42 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Catálogo de Pedidos</title>
+    <title>Cardápio Digital</title>
     <style>
-        /* CSS Básico Mobile-First */
-        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f9; padding-bottom: 70px; }
-        .header { background: #ff4757; color: white; padding: 20px; text-align: center; }
-        .produto { background: white; margin: 10px; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: flex; justify-content: space-between; align-items: center; }
-        .produto-info h3 { margin: 0 0 5px 0; }
-        .btn-add { background: #2ed573; color: white; border: none; padding: 10px 15px; border-radius: 5px; font-weight: bold; cursor: pointer; }
-        .carrinho-bar { position: fixed; bottom: 0; width: 100%; background: #2f3542; color: white; padding: 15px; text-align: center; box-sizing: border-box; display: flex; justify-content: space-between; }
-        .btn-finalizar { background: #2ed573; color: white; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; cursor: pointer; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f8f9fa; margin: 0; padding: 0; color: #333; padding-bottom: 80px; }
+        
+        /* Cabeçalho Novo (Fundo Rosa + Foto + Barra Translúcida) */
+        .header-loja { 
+            background-color: #ff6b81; /* Fundo rosa */
+            background-size: cover; 
+            background-position: center; 
+            height: 220px; /* Altura para mostrar a foto */
+            position: relative; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+        }
+        
+        /* Botão voltar com fundo escuro para não sumir em fotos claras */
+        .btn-voltar-home { 
+            position: absolute; left: 15px; top: 15px; 
+            color: white; text-decoration: none; font-weight: bold; font-size: 1.2em; 
+            background: rgba(0,0,0,0.5); width: 35px; height: 35px; 
+            border-radius: 50%; display: flex; justify-content: center; align-items: center; 
+            z-index: 10;
+        }
+
+        /* Barra preta com 70% de transparência */
+        .nome-loja-barra {
+            position: absolute; bottom: 0; left: 0; width: 100%;
+            background: rgba(0, 0, 0, 0.7); 
+            text-align: center; padding: 15px 0;
+        }
+        .nome-loja-barra h1 { margin: 0; color: white; font-size: 1.6em; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
+
+        /* Lista de Produtos */
+        .container { max-width: 600px; margin: 20px auto; padding: 0 15px; }
+        .produto-card { background: white; border-radius: 10px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; border: 1px solid #eee; }
+        .produto-info h3 { margin: 0 0 5px 0; color: #2f3542; font-size: 1.1em; }
+        .produto-info p { margin: 0 0 10px 0; font-size: 0.85em; color: #747d8c; }
+        .produto-info strong { color: #2ed573; font-size: 1.1em; }
+        .btn-add { background-color: #f1f2f6; color: #ff4757; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; font-size: 1em; cursor: pointer; transition: 0.2s; }
+        .btn-add:hover { background-color: #ff4757; color: white; }
+
+        /* Barra Flutuante do Carrinho */
+        .barra-carrinho { position: fixed; bottom: 0; left: 0; width: 100%; background: #2f3542; color: white; padding: 15px 20px; box-sizing: border-box; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -2px 10px rgba(0,0,0,0.2); cursor: pointer; z-index: 999; }
+        .barra-carrinho:hover { background: #1e242e; }
+        .carrinho-info { font-weight: bold; font-size: 1.1em; }
+        .btn-ver-lista { background: #ff4757; color: white; border: none; padding: 10px 20px; border-radius: 30px; font-weight: bold; font-size: 1em; pointer-events: none; }
+
+        /* MODAL DO CARRINHO */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: flex-end; }
+        .modal-content { background-color: white; width: 100%; max-width: 600px; margin: 0 auto; border-radius: 20px 20px 0 0; padding: 25px 20px; box-sizing: border-box; animation: subirModal 0.3s ease-out; max-height: 85vh; display: flex; flex-direction: column; }
+        @keyframes subirModal { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f1f2f6; padding-bottom: 15px; margin-bottom: 15px; }
+        .modal-header h2 { margin: 0; color: #2f3542; }
+        .btn-fechar { font-size: 1em; font-weight: bold; color: #747d8c; cursor: pointer; background: #f1f2f6; border: none; padding: 8px 12px; border-radius: 8px; }
+        
+        .modal-body { overflow-y: auto; flex-grow: 1; margin-bottom: 15px; }
+        .item-carrinho { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed #eee; }
+        .item-nome { font-weight: bold; color: #333; }
+        .item-preco { color: #747d8c; font-size: 0.9em; }
+        .btn-remover-item { background: #ff4757; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8em; font-weight: bold; }
+        
+        .modal-footer { border-top: 2px solid #f1f2f6; padding-top: 15px; }
+        .linha-total { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 1.1em; color: #2f3542; }
+        .btn-finalizar { width: 100%; background: #2ed573; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1.2em; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div style="background: #2f3542; padding: 10px; text-align: center;">
-    <a href="landing.html" style="color: white; text-decoration: none; font-weight: bold; font-size: 14px;">🏠 Ver todas as lojas</a>
+    <header class="header-loja" id="header-loja-bg">
+        <a href="index.html" class="btn-voltar-home">←</a>
+        <div class="nome-loja-barra">
+            <h1 id="nome-loja">Carregando...</h1>
+        </div>
+    </header>
+
+    <div class="container" id="lista-produtos">
+        <p style="text-align:center; padding: 20px;">Buscando cardápio...</p>
     </div>
 
-    <div class="header">
-        <h1 id="nome-loja">Carregando loja...</h1>
-        <p>Taxa de entrega: R$ <span id="taxa-entrega">0.00</span></p>
+    <div class="barra-carrinho" onclick="abrirModal()">
+        <div class="carrinho-info">🛒 <span id="qtd-itens">0</span> itens | R$ <span id="total-barra">0.00</span></div>
+        <button class="btn-ver-lista">Ver lista</button>
     </div>
 
-    <div id="lista-produtos">
-        </div>
+    <div id="modal-carrinho" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Seu Pedido 🛒</h2>
+                <button class="btn-fechar" onclick="fecharModal()">↓ Minimizar</button>
+            </div>
+            
+            <div class="modal-body" id="itens-modal"></div>
 
-    <div class="carrinho-bar">
-        <div>
-            Total: R$ <span id="total-carrinho">0.00</span>
+            <div class="modal-footer">
+                <div class="linha-total" style="font-size: 0.9em; color: #747d8c;">
+                    <span>Subtotal:</span>
+                    <span>R$ <span id="subtotal-modal">0.00</span></span>
+                </div>
+                <div class="linha-total" style="font-size: 0.9em; color: #747d8c;">
+                    <span>Taxa de Entrega:</span>
+                    <span>R$ <span id="taxa-modal">0.00</span></span>
+                </div>
+                <div class="linha-total" style="font-weight: bold; font-size: 1.2em;">
+                    <span>Total a Pagar:</span>
+                    <span>R$ <span id="total-final-modal">0.00</span></span>
+                </div>
+                <button class="btn-finalizar" onclick="finalizarPedido()">Finalizar no WhatsApp 📲</button>
+            </div>
         </div>
-        <button class="btn-finalizar" onclick="finalizarPedido()">Finalizar no WhatsApp</button>
     </div>
 
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-    
     <script src="app.js"></script>
-
 </body>
 </html>
