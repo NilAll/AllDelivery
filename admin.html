@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Lojista - AllDelivery</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f9; margin: 0; padding: 0; color: #333; }
+        
+        /* Navegação Superior */
+        .nav-admin { background: #2f3542; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+        .logo-nav { font-weight: bold; font-size: 1.2em; color: #ff4757; }
+        .nav-links { display: flex; gap: 15px; align-items: center; }
+        .btn-nav { text-decoration: none; color: white; background: rgba(255,255,255,0.1); padding: 8px 15px; border-radius: 6px; font-size: 0.9em; transition: 0.2s; }
+        .btn-nav:hover { background: rgba(255,255,255,0.2); }
+        .btn-sair-nav { background: #ff4757; border: none; cursor: pointer; color: white; font-weight: bold; }
+        .btn-sair-nav:hover { background: #ff6b81; }
+
+        .container { max-width: 650px; margin: 30px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        
+        /* Nome da Loja */
+        .loja-header { text-align: center; border-bottom: 2px solid #f1f2f6; padding-bottom: 20px; margin-bottom: 25px; }
+        .loja-header h1 { margin: 0; color: #2f3542; font-size: 2em; }
+        .loja-header p { margin: 5px 0 0 0; color: #747d8c; }
+
+        /* Área de Link */
+        .link-loja-box { background: #f8efba; border: 1px solid #eccc68; padding: 15px; border-radius: 8px; margin-bottom: 30px; }
+        .link-loja-box strong { color: #d35400; display: block; margin-bottom: 10px; }
+        .link-row { display: flex; gap: 10px; }
+        .link-row input { flex: 1; padding: 10px; border: 1px solid #d1ccc0; border-radius: 6px; background: white; color: #555; }
+        .btn-copy { background: #d35400; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+        .btn-copy:hover { background: #e67e22; }
+
+        /* Formulários */
+        h2 { font-size: 1.3em; margin-bottom: 15px; color: #2f3542; }
+        .form-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
+        input[type="text"], input[type="number"] { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1em; }
+        button.btn-salvar { background-color: #2ed573; color: white; border: none; padding: 15px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; font-size: 1.1em; transition: 0.2s; box-shadow: 0 4px 6px rgba(46, 213, 115, 0.2); }
+        button.btn-salvar:hover { background-color: #26b963; transform: translateY(-2px); }
+
+        /* Lista de Produtos */
+        .produto-item { border: 1px solid #f1f2f6; border-radius: 8px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; background: #fafafa; }
+        .produto-info strong { font-size: 1.1em; color: #2f3542; }
+        .produto-info small { display: block; color: #2ed573; font-weight: bold; margin-top: 5px; font-size: 1em; }
+        .btn-remover { background-color: white; color: #ff4757; border: 1px solid #ff4757; padding: 8px 15px; border-radius: 6px; cursor: pointer; transition: 0.2s; }
+        .btn-remover:hover { background-color: #ff4757; color: white; }
+    </style>
+</head>
+<body>
+
+    <nav class="nav-admin">
+        <div class="logo-nav">AllDelivery</div>
+        <div class="nav-links">
+            <a href="landing.html" class="btn-nav">🏠 Mural</a>
+            <a href="#" id="btn-ver-loja" class="btn-nav" target="_blank">🛒 Ver Minha Loja</a>
+            <button onclick="sair()" class="btn-nav btn-sair-nav">Sair</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        
+        <div class="loja-header">
+            <h1 id="nome-loja-admin">Carregando sua loja...</h1>
+            <p>Painel de Gerenciamento</p>
+        </div>
+
+        <div style="background: #f1f2f6; padding: 15px; border-radius: 8px; margin-bottom: 25px;">
+            <h2 style="font-size: 1em; margin-bottom: 10px;">📸 Foto da Fachada/Logo</h2>
+            
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <input type="file" id="foto-loja-file" accept="image/*" style="flex: 1; padding: 8px; background: white; border: 1px solid #ccc; border-radius: 5px;">
+                
+                <button onclick="fazerUploadFoto()" id="btn-upload" style="background: #2f3542; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold;">Enviar Foto</button>
+            </div>
+            
+            <div id="msg-upload" style="margin-top: 10px; font-weight: bold; font-size: 0.9em;"></div>
+        </div>
+
+        <div class="link-loja-box">
+            <strong>🔗 Compartilhe seu catálogo:</strong>
+            <div class="link-row">
+                <input type="text" id="url-loja" readonly>
+                <button class="btn-copy" onclick="copiarLink()">Copiar Link</button>
+            </div>
+        </div>
+
+        <h2>Adicionar Novo Produto</h2>
+        <div class="form-group">
+            <input type="text" id="nome-prod" placeholder="Nome do Produto (ex: Pizza Calabresa)">
+            <input type="text" id="desc-prod" placeholder="Descrição dos ingredientes">
+            <input type="number" id="preco-prod" placeholder="Preço (ex: 45.90)" step="0.01">
+        </div>
+        <button class="btn-salvar" onclick="salvarProduto()">+ Adicionar ao Cardápio</button>
+
+        <h2 style="margin-top: 40px;">Meu Cardápio</h2>
+        <div id="lista-produtos-admin">
+            <p style="text-align: center; color: #747d8c;">Carregando produtos...</p>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script src="admin.js"></script>
+</body>
+</html>
