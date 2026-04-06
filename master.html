@@ -63,7 +63,6 @@
 
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <script>
-        // --- LÓGICA DE SEGURANÇA DO MASTER ---
         function destravarPainel() {
             const senhaDigitada = document.getElementById('input-senha-master').value;
             const msgLogin = document.getElementById('msg-login');
@@ -72,7 +71,6 @@
             const senhaCorreta = "admin1teste102030@"; 
 
             if (senhaDigitada === senhaCorreta) {
-                // Esconde a tela de login e mostra o painel
                 document.getElementById('tela-login-master').style.display = 'none';
                 document.getElementById('tela-painel-master').style.display = 'block';
             } else {
@@ -81,8 +79,6 @@
             }
         }
 
-
-        // --- LÓGICA DO SUPABASE E CRIAÇÃO DE LOJAS ---
         const supabaseUrl = 'https://eyslsyyctmokrbuwoprk.supabase.co';
         const supabaseKey = 'sb_publishable_t9cAvHh2w-VWP3zxwSndmA_x0FPqsM1';
         const db = window.supabase.createClient(supabaseUrl, supabaseKey);
@@ -144,7 +140,8 @@
                 slug: slug,
                 whatsapp: whats,
                 taxa_entrega: 0,
-                ativa: true
+                ativa: true,
+                chave_pix: '' // SOLUÇÃO AQUI: Enviando vazio para não dar erro de "Not Null" no banco
             }]);
 
             if (dbError) {
