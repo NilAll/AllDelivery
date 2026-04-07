@@ -24,19 +24,17 @@ async function carregarMural() {
     }
 
     lojas.forEach(loja => {
-        // Usa a foto do banco, ou uma imagem padrão se a loja não tiver foto
         const foto = loja.logo_url || 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=400';
         
+        // MUDANÇA AQUI: O card inteiro (a classe loja-card) agora é o link href!
         container.innerHTML += `
-            <div class="loja-card">
+            <a href="loja.html?loja=${loja.slug}" class="loja-card">
                 <img src="${foto}" alt="${loja.nome}">
                 <div class="loja-card-content">
-                    <div>
-                        <h3>${loja.nome}</h3>
-                    </div>
-                    <a href="loja.html?loja=${loja.slug}" class="btn-acessar">Ver Cardápio</a>
+                    <h3>${loja.nome}</h3>
+                    <span class="btn-fake">Ver Cardápio</span>
                 </div>
-            </div>
+            </a>
         `;
     });
 }

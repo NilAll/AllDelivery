@@ -7,31 +7,48 @@
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: #f4f4f9; color: #333; }
         
-        /* Navegação */
         .navbar { background: white; padding: 12px 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
         .logo { font-weight: bold; color: #ff4757; font-size: 1.3em; }
         .link-login { text-decoration: none; font-size: 0.85em; color: #747d8c; font-weight: bold; background: #f1f2f6; padding: 8px 12px; border-radius: 6px; transition: 0.2s; }
         .link-login:hover { background: #dfe4ea; color: #2f3542; }
         
-        /* Hero Compacto - Barra mais fina e textos juntos */
         .hero-compact { background: linear-gradient(135deg, #ff4757, #ff6b81); color: white; text-align: center; padding: 15px 20px; }
         .hero-compact h1 { margin: 0; font-size: 1.4em; line-height: 1.2; }
         .hero-compact p { margin: 2px 0 0 0; opacity: 0.9; font-size: 0.9em; }
 
-        /* Grid em Duas Colunas para as Lojas */
         .mural-section { padding: 15px 20px; max-width: 800px; margin: 0 auto; }
         .grid-lojas { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         
-        /* Card da Loja com Imagem */
-        .loja-card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #eee; text-align: center; transition: 0.3s; display: flex; flex-direction: column; }
+        /* CARD DA LOJA (Agora é um link <a> clicável por inteiro) */
+        .loja-card { 
+            background: white; border-radius: 10px; overflow: hidden; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05); border: 1px solid #eee; 
+            text-align: center; transition: 0.3s; display: flex; flex-direction: column;
+            text-decoration: none; /* Tira o sublinhado do link */
+            color: inherit; /* Mantém a cor original dos textos */
+            cursor: pointer;
+        }
         .loja-card:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .loja-card img { width: 100%; height: 110px; object-fit: cover; background: #eee; }
-        .loja-card-content { padding: 12px; display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between; }
-        .loja-card h3 { margin: 0 0 4px 0; font-size: 1em; color: #2f3542; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .loja-card p { font-size: 0.8em; color: #747d8c; margin: 0 0 10px 0; }
-        .btn-acessar { background: #ff4757; color: white; text-decoration: none; padding: 8px; border-radius: 6px; display: block; font-size: 0.85em; font-weight: bold; }
         
-        /* Ajuste para telas muito pequenas */
+        /* FOTO 16:9 PERFEITA */
+        .loja-card img { 
+            width: 100%; 
+            aspect-ratio: 16 / 9; /* Força a proporção 16:9 */
+            object-fit: cover; /* Ajusta a foto dentro do espaço sem distorcer */
+            background: #eee; 
+            display: block;
+        }
+        
+        /* Ajuste do texto mais próximo da foto */
+        .loja-card-content { 
+            padding: 10px 12px; /* Diminui o espaçamento em cima */
+            display: flex; flex-direction: column; flex-grow: 1; justify-content: space-between; 
+        }
+        .loja-card h3 { margin: 0; font-size: 1em; color: #2f3542; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        
+        /* Botão falso apenas para visualização */
+        .btn-fake { background: #ff4757; color: white; padding: 8px; border-radius: 6px; display: block; font-size: 0.85em; font-weight: bold; margin-top: 10px; }
+        
         @media (max-width: 350px) {
             .grid-lojas { grid-template-columns: 1fr; }
         }
