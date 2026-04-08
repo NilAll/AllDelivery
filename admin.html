@@ -5,34 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Painel do Lojista - AllDelivery</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f9; margin: 0; padding: 0; color: #333; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f4f9; margin: 0; padding: 0; color: #333; }
         .nav-admin { background: #2f3542; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .logo-nav { font-weight: bold; font-size: 1.2em; color: #ff4757; }
         .nav-links { display: flex; gap: 15px; align-items: center; }
         .btn-nav { text-decoration: none; color: white; background: rgba(255,255,255,0.1); padding: 8px 15px; border-radius: 6px; font-size: 0.9em; transition: 0.2s; }
         .btn-nav:hover { background: rgba(255,255,255,0.2); }
         .btn-sair-nav { background: #ff4757; border: none; cursor: pointer; color: white; font-weight: bold; }
-        
+
         .container { max-width: 650px; margin: 30px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
         .loja-header { text-align: center; border-bottom: 2px solid #f1f2f6; padding-bottom: 20px; margin-bottom: 25px; }
         .loja-header h1 { margin: 0; color: #2f3542; font-size: 2em; }
-        .loja-header p { margin: 5px 0 0 0; color: #747d8c; }
-
-        .link-loja-box { background: #f8efba; border: 1px solid #eccc68; padding: 15px; border-radius: 8px; margin-bottom: 30px; }
-        .link-loja-box strong { color: #d35400; display: block; margin-bottom: 10px; }
-        .link-row { display: flex; gap: 10px; }
-        .link-row input { flex: 1; padding: 10px; border: 1px solid #d1ccc0; border-radius: 6px; }
-        .btn-copy { background: #d35400; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; }
-
-        h2 { font-size: 1.3em; margin-bottom: 15px; color: #2f3542; }
-        .form-group { display: flex; flex-direction: column; gap: 12px; margin-bottom: 20px; }
-        input[type="text"], input[type="number"] { width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1em; }
-        button.btn-salvar { background-color: #2ed573; color: white; border: none; padding: 15px; border-radius: 6px; cursor: pointer; width: 100%; font-weight: bold; font-size: 1.1em; }
         
-        .produto-item { border: 1px solid #f1f2f6; border-radius: 8px; padding: 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; background: #fafafa; }
-        .produto-info strong { font-size: 1.1em; color: #2f3542; }
-        .produto-info small { display: block; color: #2ed573; font-weight: bold; margin-top: 5px; font-size: 1em; }
-        .btn-remover { background-color: white; color: #ff4757; border: 1px solid #ff4757; padding: 8px 15px; border-radius: 6px; cursor: pointer; }
+        .form-bloco { background: #f8f9fa; border: 1px solid #eee; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        label { font-weight: bold; font-size: 0.9em; color: #555; display: block; margin-bottom: 5px; }
+        input[type="text"], input[type="number"], input[type="file"] { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1em; background: white;}
+        
+        button.btn-grande { width: 100%; color: white; border: none; padding: 15px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1.1em; transition: 0.2s; }
+        .btn-salvar { background-color: #2ed573; box-shadow: 0 4px 6px rgba(46, 213, 115, 0.2); }
+        .btn-salvar:hover { background-color: #26b963; }
+        .btn-config { background: #2f3542; font-size: 0.9em; padding: 10px;}
+
+        h2 { font-size: 1.3em; margin-bottom: 15px; color: #2f3542; margin-top: 30px;}
+        
+        /* Lista de Produtos Atualizada com Miniatura */
+        .produto-item { border: 1px solid #eee; border-radius: 8px; padding: 10px; margin-bottom: 15px; display: flex; gap: 15px; align-items: center; background: #fafafa; }
+        .mini-foto-prod { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; background: #eee; }
+        .produto-info { flex-grow: 1; }
+        .produto-info strong { font-size: 1em; color: #2f3542; }
+        .produto-info small { display: block; color: #2ed573; font-weight: bold; font-size: 0.9em; margin-top: 3px; }
+        .btn-remover { background-color: white; color: #ff4757; border: 1px solid #ff4757; padding: 8px 12px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-size: 0.8em;}
+        .btn-remover:hover { background-color: #ff4757; color: white; }
     </style>
 </head>
 <body>
@@ -48,45 +51,44 @@
 
     <div class="container">
         <div class="loja-header">
-            <h1 id="nome-loja-admin">Carregando sua loja...</h1>
-            <p>Painel de Gerenciamento</p>
+            <h1 id="nome-loja-admin">Minha Loja</h1>
         </div>
 
-        <div style="background: #f1f2f6; padding: 20px; border-radius: 8px; margin-bottom: 25px;">
-            <h2 style="font-size: 1.1em; margin-bottom: 15px; margin-top:0;">⚙️ Configurações da Loja</h2>
-            
-            <label style="font-weight: bold; font-size: 0.9em; color: #555;">📸 Foto da Fachada/Logo:</label>
-            <div style="display: flex; gap: 10px; align-items: center; margin-top: 5px; margin-bottom: 15px;">
-                <input type="file" id="foto-loja-file" accept="image/*" style="flex: 1; padding: 8px; background: white; border: 1px solid #ccc; border-radius: 5px;">
-                <button onclick="fazerUploadFoto()" id="btn-upload" style="background: #2f3542; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold;">Enviar</button>
+        <div class="form-bloco">
+            <label>📸 Foto da Capa/Fachada:</label>
+            <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
+                <input type="file" id="foto-loja-file" accept="image/*" style="margin:0;">
+                <button onclick="fazerUploadFotoCapa()" id="btn-upload-capa" class="btn-grande btn-config">Enviar</button>
             </div>
-            <div id="msg-upload" style="margin-bottom: 15px; font-size: 0.85em;"></div>
+            <div id="msg-upload-capa" style="font-size: 0.8em; margin-bottom: 15px;"></div>
 
-            <label style="font-weight: bold; font-size: 0.9em; color: #555;">🛵 Taxa de Entrega (R$):</label>
-            <div style="display: flex; gap: 10px; align-items: center; margin-top: 5px;">
-                <input type="number" id="taxa-entrega-admin" step="0.01" style="flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 5px;" placeholder="Ex: 5.00">
-                <button onclick="salvarTaxa()" style="background: #2f3542; color: white; border: none; padding: 10px 15px; border-radius: 5px; cursor: pointer; font-weight: bold;">Salvar Taxa</button>
+            <label>🛵 Taxa de Entrega (R$):</label>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <input type="number" id="taxa-entrega-admin" step="0.01" style="margin:0;" placeholder="0.00">
+                <button onclick="salvarTaxa()" class="btn-grande btn-config">Salvar Taxa</button>
             </div>
         </div>
 
-        <div class="link-loja-box">
-            <strong>🔗 Compartilhe seu catálogo:</strong>
-            <div class="link-row">
-                <input type="text" id="url-loja" readonly>
-                <button class="btn-copy" onclick="copiarLink()">Copiar</button>
-            </div>
+        <h2>+ Adicionar Novo Produto</h2>
+        <div class="form-bloco">
+            <label>Nome do Produto (Ex: Super Burger)</label>
+            <input type="text" id="nome-prod" placeholder="Pizza, Lanche, Bebida...">
+
+            <label>Descrição (Ingredientes, tamanho...)</label>
+            <input type="text" id="desc-prod" placeholder="Pão, carne 180g, queijo...">
+
+            <label>Preço (R$)</label>
+            <input type="number" id="preco-prod" placeholder="0.00" step="0.01">
+
+            <label>📸 Foto do Produto (Quadrada é melhor)</label>
+            <input type="file" id="foto-prod-file" accept="image/*">
+
+            <button class="btn-grande btn-salvar" onclick="salvarProduto()">Criar Produto no Cardápio</button>
+            <div id="msg-salvar-prod" style="text-align: center; margin-top: 10px; font-weight: bold;"></div>
         </div>
 
-        <h2>Adicionar Novo Produto</h2>
-        <div class="form-group">
-            <input type="text" id="nome-prod" placeholder="Nome do Produto">
-            <input type="text" id="desc-prod" placeholder="Descrição dos ingredientes">
-            <input type="number" id="preco-prod" placeholder="Preço" step="0.01">
-        </div>
-        <button class="btn-salvar" onclick="salvarProduto()">+ Adicionar ao Cardápio</button>
-
-        <h2 style="margin-top: 40px;">Meu Cardápio</h2>
-        <div id="lista-produtos-admin"><p>Carregando...</p></div>
+        <h2>Meu Cardápio</h2>
+        <div id="lista-produtos-admin">Puxando produtos...</div>
     </div>
 
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
