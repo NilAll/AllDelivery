@@ -21,21 +21,25 @@
         label { font-weight: bold; font-size: 0.9em; color: #555; display: block; margin-bottom: 5px; }
         input[type="text"], input[type="number"], input[type="file"] { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1em; background: white;}
         
-        button.btn-grande { width: 100%; color: white; border: none; padding: 15px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1.1em; transition: 0.2s; }
-        .btn-salvar { background-color: #2ed573; box-shadow: 0 4px 6px rgba(46, 213, 115, 0.2); }
+        button.btn-grande { width: 100%; border: none; padding: 15px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1.1em; transition: 0.2s; }
+        .btn-salvar { background-color: #2ed573; color: white; box-shadow: 0 4px 6px rgba(46, 213, 115, 0.2); }
         .btn-salvar:hover { background-color: #26b963; }
-        .btn-config { background: #2f3542; font-size: 0.9em; padding: 10px;}
+        .btn-config { background: #2f3542; color: white; font-size: 0.9em; padding: 10px;}
 
         h2 { font-size: 1.3em; margin-bottom: 15px; color: #2f3542; margin-top: 30px;}
         
-        /* Lista de Produtos Atualizada com Miniatura */
         .produto-item { border: 1px solid #eee; border-radius: 8px; padding: 10px; margin-bottom: 15px; display: flex; gap: 15px; align-items: center; background: #fafafa; }
         .mini-foto-prod { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; background: #eee; }
         .produto-info { flex-grow: 1; }
         .produto-info strong { font-size: 1em; color: #2f3542; }
         .produto-info small { display: block; color: #2ed573; font-weight: bold; font-size: 0.9em; margin-top: 3px; }
-        .btn-remover { background-color: white; color: #ff4757; border: 1px solid #ff4757; padding: 8px 12px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-size: 0.8em;}
-        .btn-remover:hover { background-color: #ff4757; color: white; }
+        
+        .btn-acoes { display: flex; flex-direction: column; gap: 5px; }
+        .btn-pequeno { padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8em; border: none; font-weight: bold; transition: 0.2s; text-align: center;}
+        .btn-editar { background-color: #eccc68; color: #2f3542; }
+        .btn-remover { background-color: white; color: #ff4757; border: 1px solid #ff4757; }
+        
+        .dica { font-size: 0.8em; color: #747d8c; margin-top: -10px; margin-bottom: 15px; display: block; }
     </style>
 </head>
 <body>
@@ -58,32 +62,44 @@
             <label>📸 Foto da Capa/Fachada:</label>
             <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
                 <input type="file" id="foto-loja-file" accept="image/*" style="margin:0;">
-                <button onclick="fazerUploadFotoCapa()" id="btn-upload-capa" class="btn-grande btn-config">Enviar</button>
+                <button onclick="fazerUploadFotoCapa()" id="btn-upload-capa" class="btn-grande btn-config">Enviar Capa</button>
             </div>
             <div id="msg-upload-capa" style="font-size: 0.8em; margin-bottom: 15px;"></div>
 
             <label>🛵 Taxa de Entrega (R$):</label>
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <input type="number" id="taxa-entrega-admin" step="0.01" style="margin:0;" placeholder="0.00">
-                <button onclick="salvarTaxa()" class="btn-grande btn-config">Salvar Taxa</button>
-            </div>
+            <input type="number" id="taxa-entrega-admin" step="0.01" placeholder="Ex: 5.00">
+
+            <label>🔑 Chave PIX (Para pagamento):</label>
+            <input type="text" id="pix-admin" placeholder="Ex: 123.456.789-00 ou email@pix.com">
+
+            <button onclick="salvarConfiguracoes()" class="btn-grande btn-config">Salvar Configurações (Taxa e PIX)</button>
         </div>
 
-        <h2>+ Adicionar Novo Produto</h2>
-        <div class="form-bloco">
-            <label>Nome do Produto (Ex: Super Burger)</label>
-            <input type="text" id="nome-prod" placeholder="Pizza, Lanche, Bebida...">
+        <h2 id="titulo-form-produto">+ Adicionar Novo Produto</h2>
+        <div class="form-bloco" id="bloco-form-produto">
+            <input type="hidden" id="edit-prod-id"> <label>Nome do Produto</label>
+            <input type="text" id="nome-prod" placeholder="Ex: Super Burger">
 
-            <label>Descrição (Ingredientes, tamanho...)</label>
-            <input type="text" id="desc-prod" placeholder="Pão, carne 180g, queijo...">
+            <label>Descrição Rápida</label>
+            <input type="text" id="desc-prod" placeholder="Ex: Pão artesanal, blend 180g...">
 
-            <label>Preço (R$)</label>
-            <input type="number" id="preco-prod" placeholder="0.00" step="0.01">
+            <label>Preço Base (R$)</label>
+            <input type="number" id="preco-prod" placeholder="Ex: 25.00" step="0.01">
 
-            <label>📸 Foto do Produto (Quadrada é melhor)</label>
+            <label>Ingredientes Padrão (O cliente pode retirar)</label>
+            <span class="dica">Separe por VÍRGULA. Ex: Alface, Tomate, Queijo, Cebola</span>
+            <input type="text" id="ingredientes-prod" placeholder="Ex: Alface, Tomate, Cebola">
+
+            <label>Adicionais Pagos (Opcionais com valor extra)</label>
+            <span class="dica">Use o formato NOME:PREÇO separados por vírgula. Ex: Bacon:3.50, Ovo:2.00</span>
+            <input type="text" id="adicionais-prod" placeholder="Ex: Bacon:3.50, Ovo:2.00">
+
+            <label>📸 Foto do Produto (Mande outra para substituir)</label>
             <input type="file" id="foto-prod-file" accept="image/*">
 
-            <button class="btn-grande btn-salvar" onclick="salvarProduto()">Criar Produto no Cardápio</button>
+            <button class="btn-grande btn-salvar" id="btn-salvar-prod" onclick="salvarProduto()">Criar Produto no Cardápio</button>
+            <button class="btn-grande" id="btn-cancelar-edit" style="display: none; background: #747d8c; color: white; margin-top: 10px;" onclick="cancelarEdicao()">Cancelar Edição</button>
+            
             <div id="msg-salvar-prod" style="text-align: center; margin-top: 10px; font-weight: bold;"></div>
         </div>
 
