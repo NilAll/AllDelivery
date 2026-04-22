@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Nova Senha - AllDelivery</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f9; display: flex; justify-content: center; align-items: flex-start; padding-top: 10vh; height: 100vh; margin: 0; box-sizing: border-box; }
+        .box { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); width: 100%; max-width: 350px; text-align: center; margin: 0 15px; }
+        .box h2 { color: #2f3542; margin-top: 0; margin-bottom: 10px; font-size: 1.5em; }
+        .box p { color: #747d8c; font-size: 0.9em; margin-bottom: 20px; }
+        input { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1em; }
+        .btn-salvar { width: 100%; background: #2ed573; color: white; border: none; padding: 12px; border-radius: 6px; font-size: 1.1em; font-weight: bold; cursor: pointer; transition: 0.2s; }
+        .btn-salvar:hover { background: #26b963; }
+        #mensagem { margin-top: 15px; font-size: 0.9em; font-weight: bold; min-height: 20px; }
+    </style>
+</head>
+<body>
+
+    <div class="box">
+        <h2>Criar Nova Senha</h2>
+        <p>Digite abaixo a sua nova senha de acesso ao painel do lojista.</p>
+        
+        <input type="password" id="senha1" placeholder="Nova Senha (mín. 6 caracteres)">
+        <input type="password" id="senha2" placeholder="Repita a Nova Senha">
+        
+        <button class="btn-salvar" onclick="atualizarSenha()">Salvar e Entrar</button>
+        <div id="mensagem"></div>
+    </div>
+
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script>
+        const supabaseUrl = 'https://eyslsyyctmokrbuwoprk.supabase.co';
+        const supabaseKey = 'sb_publishable_t9cAvHh2w-VWP3zxwSndmA_x0FPqsM1';
+        const db = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        async function atualizarSenha() {
+            const senha1 = document.getElementById('senha1').value;
+            const senha2 = document.getElementById('senha2').value;
+            const msg = document.getElementById('mensagem');
+
+            if (!senha1 || !senha2) {
+                msg.innerText = "Preencha os dois campos.";
+                msg.style.color = "#ff4757";
+                return;
+            }
+
+            if (senha1 !== senha2) {
+                msg.innerText = "As senhas não são iguais!";
+                msg.style.color = "#ff4757";
+                return;
+            }
+
+            if (senha1.length < 6) {
+                msg.innerText = "A senha deve ter no mínimo 6 caracteres.";
+                msg.style.color = "#ff4757";
+                return;
+            }
+
+            msg.innerText = "⏳ Atualizando senha...";
+            msg.style.color = "#eccc68";
+
+            // A MÁGICA ACONTECE AQUI: Atualiza a senha do usuário
+            const { data, error } = await db.auth.updateUser({
+                password: senha1
+            });
+
+            if (error) {
+                msg.innerText = "❌ Erro: " + error.message;
+                msg.style.color = "#ff4757";
+            } else {
+                msg.innerText = "✅ Senha atualizada! Entrando...";
+                msg.style.color = "#2ed573";
+                // Manda o lojista direto pro painel dele
+                setTimeout(() => { window.location.href = "admin.html"; }, 1500);
+            }
+        }
+    </script>
+</body>
+</html>
