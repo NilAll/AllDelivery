@@ -3,7 +3,8 @@ const supabaseKey = 'sb_publishable_t9cAvHh2w-VWP3zxwSndmA_x0FPqsM1';
 const db = window.supabase.createClient(supabaseUrl, supabaseKey);
 
 let idDaLojaLogada = null;
-let produtosCarregadosAdmin = []; // Guarda na memória para facilitar a edição
+let produtosCarregadosAdmin = []; 
+let categoriasCarregadasAdmin = [];
 
 async function verificarSessao() {
     const { data: { session } } = await db.auth.getSession();
@@ -17,17 +18,81 @@ async function buscarLojaDoUsuario(userId) {
 
     idDaLojaLogada = loja.id;
     document.getElementById('nome-loja-admin').innerText = loja.nome;
-    
-    // Preenche as configurações da loja
     document.getElementById('taxa-entrega-admin').value = Number(loja.taxa_entrega).toFixed(2);
     document.getElementById('pix-admin').value = loja.chave_pix || '';
 
     const urlBase = window.location.href.split('admin.html')[0];
     document.getElementById('btn-ver-loja').href = `${urlBase}loja.html?loja=${loja.slug}`;
 
+    carregarCategoriasAdmin();
     carregarProdutosAdmin();
 }
 
+// === GESTÃO DE CATEGORIAS ===
+async function carregarCategoriasAdmin() {
+    const { data: categorias } = await db.from('categorias').select('*').eq('loja_id', idDaLojaLogada).order('nome');
+    const selectCat = document.getElementById('cat-prod');
+    const listaHTML = document.getElementById('lista-categorias-admin');
+    
+    selectCat.innerHTML = '<option value="">Sem Categoria (Fica solto na lista)</option>';
+    listaHTML.innerHTML = '';
+
+    if (categorias) {
+        categoriasCarregadasAdmin = categorias;
+        categorias.forEach(cat => {
+            selectCat.innerHTML += `<option value="${cat.id}">${cat.nome}</option>`;
+            listaHTML.innerHTML += `
+                <div style="background:white; border:1px solid #ccc; padding:8px 12px; border-radius:8px; display:flex; gap:10px; align-items:center; font-size:0.9em; font-weight:bold;">
+                    ${cat.nome}
+                    <button onclick="removerCategoria('${cat.id}')" style="background:#ff4757; border:none; color:white; cursor:pointer; border-radius:4px; padding:3px 6px;">X</button>
+                </div>
+            `;
+        });
+    }
+}
+
+window.salvarCategoria = async function() {
+    const nome = document.getElementById('nome-cat').value;
+    const arquivoFoto = document.getElementById('foto-cat-file').files[0];
+    const msg = document.getElementById('msg-cat');
+
+    if(!nome) { alert('Dê um nome para a categoria.'); return; }
+    msg.innerText = "⏳ Criando categoria...";
+    msg.style.color = "#e67e22";
+
+    let urlFinalFoto = null;
+    if(arquivoFoto) {
+        const ext = arquivoFoto.name.split('.').pop();
+        const nomeUnico = `cat_${idDaLojaLogada}_${Date.now()}.${ext}`;
+        const { error: uploadError } = await db.storage.from('categorias').upload(nomeUnico, arquivoFoto);
+        if(!uploadError) {
+            const { data } = db.storage.from('categorias').getPublicUrl(nomeUnico);
+            urlFinalFoto = data.publicUrl;
+        }
+    }
+
+    const { error } = await db.from('categorias').insert([{ loja_id: idDaLojaLogada, nome: nome, imagem_url: urlFinalFoto }]);
+    if(!error) {
+        msg.innerText = "✅ Categoria criada!";
+        msg.style.color = "#2ed573";
+        document.getElementById('nome-cat').value = '';
+        document.getElementById('foto-cat-file').value = '';
+        carregarCategoriasAdmin();
+        setTimeout(() => msg.innerText='', 3000);
+    } else {
+        msg.innerText = "❌ Erro ao criar.";
+    }
+}
+
+window.removerCategoria = async function(id) {
+    if(confirm('Tem certeza? Os produtos dessa categoria ficarão "Sem grupo".')) {
+        await db.from('categorias').delete().eq('id', id);
+        carregarCategoriasAdmin();
+        carregarProdutosAdmin(); // Recarrega produtos pois a categoria sumiu
+    }
+}
+
+// === GESTÃO DE PRODUTOS ===
 async function carregarProdutosAdmin() {
     const { data: produtos, error } = await db.from('produtos').select('*').eq('loja_id', idDaLojaLogada).order('created_at', { ascending: false });
     const listaHTML = document.getElementById('lista-produtos-admin');
@@ -35,16 +100,24 @@ async function carregarProdutosAdmin() {
 
     if (error || produtos.length === 0) { listaHTML.innerHTML = '<p style="text-align:center; padding:20px;">Cardápio vazio.</p>'; return; }
 
-    produtosCarregadosAdmin = produtos; // Salva para a função de edição
+    produtosCarregadosAdmin = produtos; 
 
     produtos.forEach((produto) => {
         let preco = Number(produto.preco);
         let foto = produto.imagem_url || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=100&auto=format&fit=crop';
         
+        // Pega o nome da categoria para mostrar na tag
+        let nomeCat = "Sem Grupo";
+        if(produto.categoria_id) {
+            let catObj = categoriasCarregadasAdmin.find(c => c.id === produto.categoria_id);
+            if(catObj) nomeCat = catObj.nome;
+        }
+
         listaHTML.innerHTML += `
             <div class="produto-item">
                 <img src="${foto}" class="mini-foto-prod">
                 <div class="produto-info">
+                    <span class="cat-tag">${nomeCat}</span><br>
                     <strong>${produto.nome}</strong>
                     <small>R$ ${preco.toFixed(2)}</small>
                 </div>
@@ -57,35 +130,35 @@ async function carregarProdutosAdmin() {
     });
 }
 
-// === LÓGICA DE EDIÇÃO ===
 window.carregarDadosEdicao = function(id) {
     const prod = produtosCarregadosAdmin.find(p => p.id === id);
     if(!prod) return;
 
     document.getElementById('titulo-form-produto').innerText = "✏️ Editar Produto";
     document.getElementById('edit-prod-id').value = prod.id;
+    
+    // Marca a categoria correta no Select
+    document.getElementById('cat-prod').value = prod.categoria_id || ''; 
+
     document.getElementById('nome-prod').value = prod.nome;
     document.getElementById('desc-prod').value = prod.descricao || '';
     document.getElementById('preco-prod').value = prod.preco;
 
-    // Transforma Arrays de volta para texto separado por vírgulas
     document.getElementById('ingredientes-prod').value = (prod.ingredientes || []).join(', ');
     document.getElementById('adicionais-prod').value = (prod.adicionais || []).map(a => `${a.nome}:${a.preco}`).join(', ');
 
-    // Muda o visual dos botões
     let btnSalvar = document.getElementById('btn-salvar-prod');
     btnSalvar.innerText = "Atualizar Produto";
     btnSalvar.style.backgroundColor = "#eccc68";
     btnSalvar.style.color = "#2f3542";
     document.getElementById('btn-cancelar-edit').style.display = "block";
-
-    // Rola a tela pra cima suavemente
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 window.cancelarEdicao = function() {
     document.getElementById('titulo-form-produto').innerText = "+ Adicionar Novo Produto";
     document.getElementById('edit-prod-id').value = "";
+    document.getElementById('cat-prod').value = "";
     document.getElementById('nome-prod').value = "";
     document.getElementById('desc-prod').value = "";
     document.getElementById('preco-prod').value = "";
@@ -100,9 +173,9 @@ window.cancelarEdicao = function() {
     document.getElementById('btn-cancelar-edit').style.display = "none";
 }
 
-// === SALVAR (CRIAÇÃO E EDIÇÃO) ===
 async function salvarProduto() {
-    const editId = document.getElementById('edit-prod-id').value; // Se tiver ID, é edição
+    const editId = document.getElementById('edit-prod-id').value; 
+    const catId = document.getElementById('cat-prod').value; // Pega categoria
     const nome = document.getElementById('nome-prod').value;
     const desc = document.getElementById('desc-prod').value;
     const preco = document.getElementById('preco-prod').value;
@@ -125,7 +198,6 @@ async function salvarProduto() {
     msg.style.color = "#e67e22";
 
     let urlFinalFoto = null;
-
     if(arquivoFoto) {
         msg.innerText = "⏳ Enviando foto...";
         const extensao = arquivoFoto.name.split('.').pop();
@@ -142,20 +214,17 @@ async function salvarProduto() {
         descricao: desc, 
         preco: parseFloat(preco),
         ingredientes: arrayIngredientes,
-        adicionais: arrayAdicionais
+        adicionais: arrayAdicionais,
+        categoria_id: catId ? catId : null // Salva Null se não escolher grupo
     };
 
-    // Só altera a imagem se o usuário tiver feito upload de uma nova
     if(urlFinalFoto) dadosBanco.imagem_url = urlFinalFoto; 
 
     let erroBanco;
-
     if(editId) {
-        // Atualiza produto existente
         const { error } = await db.from('produtos').update(dadosBanco).eq('id', editId);
         erroBanco = error;
     } else {
-        // Cria produto novo
         dadosBanco.loja_id = idDaLojaLogada;
         const { error } = await db.from('produtos').insert([dadosBanco]);
         erroBanco = error;
@@ -164,11 +233,9 @@ async function salvarProduto() {
     if (!erroBanco) {
         msg.innerText = editId ? "✅ Produto Atualizado!" : "✅ Produto Adicionado!";
         msg.style.color = "#2ed573";
-        cancelarEdicao(); // Limpa o formulário e volta ao normal
+        cancelarEdicao(); 
         carregarProdutosAdmin();
-    } else {
-        msg.innerText = "❌ Erro ao salvar.";
-    }
+    } else { msg.innerText = "❌ Erro ao salvar."; }
 }
 
 async function removerProduto(idProduto) {
@@ -194,11 +261,9 @@ window.fazerUploadFotoCapa = async function() {
     } else { msg.innerText = "❌ Erro."; }
 }
 
-// Salva Taxa e PIX juntos
 window.salvarConfiguracoes = async function() {
     const novaTaxa = parseFloat(document.getElementById('taxa-entrega-admin').value) || 0;
     const novoPix = document.getElementById('pix-admin').value;
-    
     await db.from('lojas').update({ taxa_entrega: novaTaxa, chave_pix: novoPix }).eq('id', idDaLojaLogada);
     alert("Taxa e Chave PIX atualizadas com sucesso!");
 }

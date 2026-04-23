@@ -9,36 +9,40 @@
         
         .header-loja { background-color: #ff6b81; background-size: cover; background-position: center; width: 100%; aspect-ratio: 16 / 9; max-height: 250px; position: relative; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .btn-voltar-home { position: absolute; left: 15px; top: 15px; color: white; text-decoration: none; font-weight: bold; font-size: 1.2em; background: rgba(0,0,0,0.4); width: 35px; height: 35px; border-radius: 50%; display: flex; justify-content: center; align-items: center; z-index: 10; transition: 0.2s; }
-        
         .nome-loja-barra { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0, 0, 0, 0.4); text-align: center; padding: 8px 0; }
         .nome-loja-barra h1 { margin: 0; color: white; font-size: 1.4em; text-shadow: 0 1px 4px rgba(0,0,0,0.8); }
 
-        .container { max-width: 600px; margin: 20px auto; padding: 0 15px; }
+        .container { max-width: 600px; margin: 0 auto; padding: 0 15px; }
         
-        /* CARD COM FEEDBACK DE COR */
-        .produto-card { background: white; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid #eee; overflow: hidden; display: flex; align-items: stretch; cursor: pointer; transition: 0.2s; }
-        .card-selecionado { background: #f1f2f6; border-color: #dcdde1; } /* Cinza claro se selecionado */
+        /* NOVO: DESIGN DAS CATEGORIAS (2 COLUNAS) */
+        .grid-categorias { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 25px; }
+        .cat-card { position: relative; aspect-ratio: 16/9; border-radius: 10px; overflow: hidden; background-size: cover; background-position: center; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.1); transition: 0.2s;}
+        .cat-card:active { transform: scale(0.95); }
+        .cat-nome { position: absolute; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.5); color: white; padding: 6px; text-align: center; font-weight: bold; font-size: 0.9em; box-sizing: border-box; text-shadow: 0 1px 3px rgba(0,0,0,0.8);}
+        
+        /* AVISO DE FILTRO ATIVO */
+        .caixa-filtro { display:none; justify-content: space-between; align-items: center; margin-bottom: 15px; background: #2ed573; color: white; padding: 12px 15px; border-radius: 8px; box-shadow: 0 4px 10px rgba(46, 213, 115, 0.3);}
+        .btn-limpar-filtro { background: white; border: none; padding: 6px 12px; border-radius: 20px; font-weight: bold; color: #2f3542; cursor: pointer; font-size:0.8em; box-shadow: 0 2px 4px rgba(0,0,0,0.1);}
 
+        /* CARDS DOS PRODUTOS */
+        .produto-card { background: white; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border: 1px solid #eee; overflow: hidden; display: flex; align-items: stretch; cursor: pointer; transition: 0.2s; }
+        .card-selecionado { background: #f1f2f6; border-color: #dcdde1; } 
         .produto-img { width: 100px; height: auto; object-fit: cover; background: #eee; }
         .produto-info-lado { flex-grow: 1; padding: 15px; display: flex; justify-content: space-between; align-items: center; min-width: 0; gap: 10px;}
-
         .produto-textos { flex-grow: 1; min-width: 0; }
         .produto-textos h3 { margin: 0 0 4px 0; color: #2f3542; font-size: 1em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .produto-textos p { margin: 0 0 10px 0; font-size: 0.8em; color: #747d8c; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .produto-textos strong { color: #2ed573; font-size: 1.1em; }
 
-        /* MUDANÇA: O Botão agora só tem o + */
         .controle-add { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 45px;}
         .btn-add { background-color: #f1f2f6; color: #ff4757; border: none; width: 35px; height: 35px; border-radius: 8px; font-weight: bold; font-size: 1.3em; cursor: pointer; transition: 0.2s; z-index: 2; display: flex; align-items: center; justify-content: center;}
         .card-selecionado .btn-add { background-color: #ff4757; color: white; }
         .qtd-no-card { font-size: 0.85em; font-weight: bold; color: #747d8c; margin-top: 5px; height: 15px;}
 
-        /* Barra Flutuante */
+        /* BARRAS E MODAIS (Mantidos) */
         .barra-carrinho { position: fixed; bottom: 0; left: 0; width: 100%; background: #2f3542; color: white; padding: 15px 20px; box-sizing: border-box; display: flex; justify-content: space-between; align-items: center; z-index: 999; cursor: pointer; }
         .carrinho-info { font-weight: bold; font-size: 1.1em; }
         .btn-ver-lista { background: #ff4757; color: white; border: none; padding: 10px 20px; border-radius: 30px; font-weight: bold; pointer-events: none; }
-
-        /* MODAIS */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); align-items: flex-end; }
         .modal-content { background-color: white; width: 100%; max-width: 600px; margin: 0 auto; border-radius: 20px 20px 0 0; padding: 25px 20px; box-sizing: border-box; animation: subirModal 0.3s ease-out; max-height: 85vh; display: flex; flex-direction: column; }
         @keyframes subirModal { from { transform: translateY(100%); } to { transform: translateY(0); } }
@@ -47,14 +51,11 @@
         .btn-fechar { font-size: 1em; font-weight: bold; color: #747d8c; cursor: pointer; background: #f1f2f6; border: none; padding: 8px 12px; border-radius: 8px; }
         .modal-body { overflow-y: auto; flex-grow: 1; margin-bottom: 15px; }
         
-        /* Modal Detalhes com as Opções */
         #modal-detalhe .modal-content { padding: 0; overflow: hidden; position: relative; }
         .detalhe-img { width: 100%; height: 250px; object-fit: cover; display: block; }
         .detalhe-info { padding: 20px; overflow-y: auto; max-height: 50vh; }
         .detalhe-info h2 { margin: 0 0 5px 0; color: #2f3542; }
         .detalhe-info p { color: #747d8c; line-height: 1.5; margin-bottom: 15px; font-size: 0.95em; }
-        
-        /* Estilos das Caixinhas de Ingredientes */
         .titulo-opcoes { font-size: 0.85em; color: #747d8c; text-transform: uppercase; font-weight: bold; background: #f1f2f6; padding: 8px 10px; border-radius: 6px; margin: 15px 0 10px 0; }
         .lista-opcoes { list-style: none; padding: 0; margin: 0 0 20px 0; }
         .lista-opcoes li { border-bottom: 1px solid #f1f2f6; padding: 10px 0; }
@@ -69,7 +70,6 @@
         .btn-add-detalhe { width: 100%; background: #ff4757; color: white; border: none; padding: 15px; border-radius: 8px; font-weight: bold; font-size: 1.1em; cursor: pointer; }
         .btn-fechar-absoluto { position: absolute; top: 15px; right: 15px; background: rgba(0,0,0,0.5); color: white; border: none; width: 35px; height: 35px; border-radius: 50%; font-size: 1.2em; cursor: pointer; display: flex; justify-content: center; align-items: center; z-index: 10; }
         
-        /* Carrinho de Compras */
         .item-carrinho { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px dashed #eee; font-size: 0.9em;}
         .item-detalhes-texto { font-size: 0.85em; color: #747d8c; margin-top: 3px; display: block; line-height: 1.3;}
         .btn-remover-item { background: #ff4757; color: white; border: none; padding: 6px 12px; border-radius: 4px; font-size: 0.8em; font-weight: bold; cursor: pointer;}
@@ -87,8 +87,21 @@
         </div>
     </header>
 
-    <div class="container" id="lista-produtos">
-        <p style="text-align:center; padding: 20px;">Buscando cardápio...</p>
+    <div class="container" id="container-categorias" style="display:none; padding-top: 20px;">
+        <h2 style="font-size: 1.2em; color: #2f3542; margin-top: 0; margin-bottom: 15px;">Categorias</h2>
+        <div class="grid-categorias" id="lista-categorias"></div>
+    </div>
+
+    <div class="container" style="padding-top: 10px;">
+        
+        <div class="caixa-filtro" id="filtro-ativo">
+            <span id="nome-filtro" style="font-weight:bold;">Mostrando: Pizzas</span> 
+            <button onclick="limparFiltro()" class="btn-limpar-filtro">Ver todo o cardápio</button>
+        </div>
+
+        <div id="lista-produtos">
+            <p style="text-align:center; padding: 20px;">Buscando cardápio...</p>
+        </div>
     </div>
 
     <div class="barra-carrinho" onclick="abrirModal()">
@@ -116,13 +129,11 @@
         <div class="modal-content">
             <button class="btn-fechar-absoluto" onclick="fecharDetalhe()">×</button>
             <img id="detalhe-foto" src="" class="detalhe-img">
-            
             <div class="detalhe-info">
-                <h2 id="detalhe-nome">Nome do Produto</h2>
-                <p id="detalhe-desc">Descrição</p>
-                
-                <div id="area-ingredientes"></div> </div>
-
+                <h2 id="detalhe-nome">Nome</h2>
+                <p id="detalhe-desc">Desc</p>
+                <div id="area-ingredientes"></div> 
+            </div>
             <div class="rodape-detalhe">
                 <div class="detalhe-info-rodape">
                     <span style="color: #747d8c; font-weight: bold;">Total Item:</span>

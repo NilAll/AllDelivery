@@ -19,14 +19,14 @@
         
         .form-bloco { background: #f8f9fa; border: 1px solid #eee; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
         label { font-weight: bold; font-size: 0.9em; color: #555; display: block; margin-bottom: 5px; }
-        input[type="text"], input[type="number"], input[type="file"] { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1em; background: white;}
+        input[type="text"], input[type="number"], input[type="file"], select { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1em; background: white;}
         
         button.btn-grande { width: 100%; border: none; padding: 15px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1.1em; transition: 0.2s; }
         .btn-salvar { background-color: #2ed573; color: white; box-shadow: 0 4px 6px rgba(46, 213, 115, 0.2); }
         .btn-salvar:hover { background-color: #26b963; }
         .btn-config { background: #2f3542; color: white; font-size: 0.9em; padding: 10px;}
 
-        h2 { font-size: 1.3em; margin-bottom: 15px; color: #2f3542; margin-top: 30px;}
+        h2 { font-size: 1.3em; margin-bottom: 15px; color: #2f3542; margin-top: 30px; border-bottom: 2px solid #eee; padding-bottom: 5px;}
         
         .produto-item { border: 1px solid #eee; border-radius: 8px; padding: 10px; margin-bottom: 15px; display: flex; gap: 15px; align-items: center; background: #fafafa; }
         .mini-foto-prod { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; background: #eee; }
@@ -40,6 +40,7 @@
         .btn-remover { background-color: white; color: #ff4757; border: 1px solid #ff4757; }
         
         .dica { font-size: 0.8em; color: #747d8c; margin-top: -10px; margin-bottom: 15px; display: block; }
+        .cat-tag { font-size: 0.75em; background: #dfe4ea; padding: 2px 6px; border-radius: 4px; color: #2f3542; margin-bottom: 3px; display: inline-block;}
     </style>
 </head>
 <body>
@@ -72,12 +73,34 @@
             <label>🔑 Chave PIX (Para pagamento):</label>
             <input type="text" id="pix-admin" placeholder="Ex: 123.456.789-00 ou email@pix.com">
 
-            <button onclick="salvarConfiguracoes()" class="btn-grande btn-config">Salvar Configurações (Taxa e PIX)</button>
+            <button onclick="salvarConfiguracoes()" class="btn-grande btn-config">Salvar Configurações</button>
         </div>
+
+        <h2>📁 Categorias do Cardápio</h2>
+        <div class="form-bloco">
+            <label>Nome do Grupo (Ex: Pizzas, Bebidas)</label>
+            <input type="text" id="nome-cat" placeholder="Ex: Lanches Artesanais">
+            
+            <label>📸 Foto do Grupo (Aparece no topo da loja)</label>
+            <input type="file" id="foto-cat-file" accept="image/*">
+            
+            <button class="btn-grande btn-config" onclick="salvarCategoria()" style="background: #3742fa;">+ Criar Categoria</button>
+            <div id="msg-cat" style="text-align: center; margin-top: 10px; font-weight: bold;"></div>
+
+            <div id="lista-categorias-admin" style="margin-top: 15px; display:flex; flex-wrap:wrap; gap:10px;"></div>
+        </div>
+
 
         <h2 id="titulo-form-produto">+ Adicionar Novo Produto</h2>
         <div class="form-bloco" id="bloco-form-produto">
-            <input type="hidden" id="edit-prod-id"> <label>Nome do Produto</label>
+            <input type="hidden" id="edit-prod-id"> 
+
+            <label>Categoria do Produto</label>
+            <select id="cat-prod">
+                <option value="">Sem Categoria (Fica solto na lista)</option>
+            </select>
+
+            <label>Nome do Produto</label>
             <input type="text" id="nome-prod" placeholder="Ex: Super Burger">
 
             <label>Descrição Rápida</label>
