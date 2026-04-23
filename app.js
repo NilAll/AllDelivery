@@ -7,7 +7,7 @@ let dadosLoja = {};
 let produtosCarregados = [];
 let categoriasCarregadas = [];
 let precoBaseModalAtual = 0; 
-let filtroCategoriaAtivo = null; // Guarda qual categoria estamos vendo
+let filtroCategoriaAtivo = null;
 
 const urlParams = new URLSearchParams(window.location.search);
 const lojaSlug = urlParams.get('loja');
@@ -26,7 +26,6 @@ async function carregarLoja() {
     carregarProdutos(dadosLoja.id);
 }
 
-// === NOVO: PUXAR E RENDERIZAR CATEGORIAS NO TOPO ===
 async function carregarCategorias(idDaLoja) {
     const { data: categorias } = await db.from('categorias').select('*').eq('loja_id', idDaLoja).order('nome');
     const container = document.getElementById('container-categorias');
@@ -34,7 +33,7 @@ async function carregarCategorias(idDaLoja) {
 
     if (categorias && categorias.length > 0) {
         categoriasCarregadas = categorias;
-        container.style.display = 'block'; // Mostra o bloco no topo
+        container.style.display = 'block'; 
         lista.innerHTML = '';
         
         categorias.forEach(cat => {
@@ -48,7 +47,6 @@ async function carregarCategorias(idDaLoja) {
     }
 }
 
-// === PUXAR PRODUTOS (Uma vez só) ===
 async function carregarProdutos(idDaLoja) {
     const { data: produtos } = await db.from('produtos').select('*').eq('loja_id', idDaLoja).eq('disponivel', true);
     
@@ -58,29 +56,25 @@ async function carregarProdutos(idDaLoja) {
     }
 
     produtosCarregados = produtos; 
-    renderizarProdutosNaTela(); // Desenha na tela baseando-se no filtro
+    renderizarProdutosNaTela(); 
 }
 
-// === NOVO: DESENHAR OS PRODUTOS (Com ou sem filtro) ===
 function renderizarProdutosNaTela() {
     const listaHTML = document.getElementById('lista-produtos');
     listaHTML.innerHTML = '';
 
-    // Se tem filtro ativo, pega só os do filtro. Se não, mostra todos.
     let produtosParaMostrar = produtosCarregados;
     if (filtroCategoriaAtivo) {
         produtosParaMostrar = produtosCarregados.filter(p => p.categoria_id === filtroCategoriaAtivo);
     }
 
     if (produtosParaMostrar.length === 0) {
-        listaHTML.innerHTML = '<p style="text-align:center;">Nenhum produto nesta categoria.</p>';
+        listaHTML.innerHTML = '<p style="text-align:center; padding: 20px;">Nenhum produto nesta categoria.</p>';
         return;
     }
 
     produtosParaMostrar.forEach((produto) => {
-        // Acha a posição real na lista global para o modal abrir o produto certo
         let indexReal = produtosCarregados.findIndex(p => p.id === produto.id);
-        
         let preco = Number(produto.preco);
         let foto = produto.imagem_url || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=100&auto=format&fit=crop';
         
@@ -102,33 +96,39 @@ function renderizarProdutosNaTela() {
         `;
     });
 
-    // Pinta os botões que já estiverem no carrinho
     atualizarCarrinhoVisual(true);
 }
 
-// === NOVO: LÓGICA DO FILTRO (Cliques na categoria) ===
+// === LÓGICA DO FILTRO ATUALIZADA ===
 window.filtrarPorCategoria = function(id, nome) {
     filtroCategoriaAtivo = id;
     
-    // Mostra a barra verde avisando o cliente
+    // Esconde a vitrine de grupos para limpar a tela
+    document.getElementById('container-categorias').style.display = 'none';
+    
     const caixaFiltro = document.getElementById('filtro-ativo');
     caixaFiltro.style.display = 'flex';
     document.getElementById('nome-filtro').innerText = `Mostrando: ${nome}`;
     
     renderizarProdutosNaTela();
-    
-    // Rola a tela suavemente para baixo para mostrar os produtos
-    caixaFiltro.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 window.limparFiltro = function() {
     filtroCategoriaAtivo = null;
     document.getElementById('filtro-ativo').style.display = 'none';
+    
+    // Mostra a vitrine de grupos novamente se a loja tiver categorias
+    if (categoriasCarregadas.length > 0) {
+        document.getElementById('container-categorias').style.display = 'block';
+    }
+    
     renderizarProdutosNaTela();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 
-// === RESTO DO CÓDIGO (Intocado e 100% Completo) ===
+// === RESTO DO CÓDIGO ===
 window.abrirDetalhe = function(index) {
     const prod = produtosCarregados[index];
     precoBaseModalAtual = Number(prod.preco);
@@ -214,7 +214,6 @@ function atualizarCarrinhoVisual(apenasVisual = false) {
     let taxa = Number(dadosLoja.taxa_entrega || 0);
     document.getElementById('total-final-modal').innerText = carrinho.length === 0 ? "0.00" : (subtotal + taxa).toFixed(2);
 
-    // Repinta os cards visíveis na tela
     document.querySelectorAll('.produto-card').forEach(card => {
         let produtoId = card.id.replace('card-', '');
         let txtQtd = document.getElementById(`qtd-${produtoId}`);
