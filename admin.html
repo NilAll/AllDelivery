@@ -6,51 +6,69 @@
     <title>Painel do Lojista - AllDelivery</title>
     <style>
         body { font-family: 'Segoe UI', sans-serif; background-color: #f4f4f9; margin: 0; padding: 0; color: #333; }
-        .nav-admin { background: #2f3542; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center; color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .logo-nav { font-weight: bold; font-size: 1.2em; color: #ff4757; }
-        .nav-links { display: flex; gap: 15px; align-items: center; }
-        .btn-nav { text-decoration: none; color: white; background: rgba(255,255,255,0.1); padding: 8px 15px; border-radius: 6px; font-size: 0.9em; transition: 0.2s; }
-        .btn-nav:hover { background: rgba(255,255,255,0.2); }
-        .btn-sair-nav { background: #ff4757; border: none; cursor: pointer; color: white; font-weight: bold; }
-
-        .container { max-width: 650px; margin: 30px auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .loja-header { text-align: center; border-bottom: 2px solid #f1f2f6; padding-bottom: 20px; margin-bottom: 25px; }
-        .loja-header h1 { margin: 0; color: #2f3542; font-size: 2em; }
         
-        .form-bloco { background: #f8f9fa; border: 1px solid #eee; padding: 20px; border-radius: 8px; margin-bottom: 20px; }
+        /* NAVBAR COM MENU HAMBÚRGUER */
+        .nav-admin { background: #2f3542; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1); position: relative;}
+        .logo-nav { font-weight: bold; font-size: 1.2em; color: #ff4757; }
+        .menu-icon { font-size: 1.8em; cursor: pointer; color: white; background: none; border: none; padding: 0; margin: 0; line-height: 1;}
+        
+        .mobile-menu { display: none; flex-direction: column; background: #2f3542; position: absolute; top: 60px; right: 10px; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.3); z-index: 100; width: 200px; border: 1px solid #57606f;}
+        .mobile-menu.active { display: flex; }
+        .mobile-menu a, .mobile-menu button { padding: 15px 20px; color: white; text-decoration: none; text-align: left; background: none; border: none; font-size: 1em; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.1); width: 100%; box-sizing: border-box; font-family: inherit;}
+        .mobile-menu button { color: #ff4757; font-weight: bold; border-bottom: none;}
+
+        /* CONTAINER E ESPAÇAMENTOS AJUSTADOS */
+        .container { max-width: 650px; margin: 15px auto; background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .loja-header { text-align: center; border-bottom: 2px solid #f1f2f6; padding-bottom: 10px; margin-bottom: 15px; }
+        .loja-header h1 { margin: 0; color: #2f3542; font-size: 1.6em; }
+        
+        .form-bloco { background: #f8f9fa; border: 1px solid #eee; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
         label { font-weight: bold; font-size: 0.9em; color: #555; display: block; margin-bottom: 5px; }
-        input[type="text"], input[type="number"], input[type="file"], select { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1em; background: white;}
+        input[type="text"], input[type="file"], select { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 6px; box-sizing: border-box; font-size: 1em; background: white;}
         
         button.btn-grande { width: 100%; border: none; padding: 15px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1.1em; transition: 0.2s; }
         .btn-salvar { background-color: #2ed573; color: white; box-shadow: 0 4px 6px rgba(46, 213, 115, 0.2); }
-        .btn-salvar:hover { background-color: #26b963; }
-        .btn-config { background: #2f3542; color: white; font-size: 0.9em; padding: 10px;}
+        .btn-config { background: #2f3542; color: white; font-size: 0.9em; padding: 12px;}
 
-        h2 { font-size: 1.3em; margin-bottom: 15px; color: #2f3542; margin-top: 30px; border-bottom: 2px solid #eee; padding-bottom: 5px;}
+        h2 { font-size: 1.2em; margin-bottom: 10px; color: #2f3542; margin-top: 20px; border-bottom: 2px solid #eee; padding-bottom: 5px;}
         
-        .produto-item { border: 1px solid #eee; border-radius: 8px; padding: 10px; margin-bottom: 15px; display: flex; gap: 15px; align-items: center; background: #fafafa; }
-        .mini-foto-prod { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; background: #eee; }
-        .produto-info { flex-grow: 1; }
-        .produto-info strong { font-size: 1em; color: #2f3542; }
+        /* BOTÃO DE FOTO MENOR COM SETINHA */
+        .btn-icon { background: #2f3542; color: white; border: none; border-radius: 6px; width: 45px; height: 45px; font-size: 1.4em; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0;}
+        
+        /* TAXA E PIX NA MESMA LINHA */
+        .row-dupla { display: flex; gap: 10px; align-items: flex-start; margin-bottom: 15px; width: 100%;}
+        .input-icon { display: flex; align-items: center; background: white; border: 1px solid #ccc; border-radius: 6px; padding: 0 10px; flex-grow: 1; height: 45px;}
+        .input-icon span { font-size: 1.2em; margin-right: 8px; }
+        .input-icon input { border: none; margin: 0; padding: 0; outline: none; background: transparent; width: 100%; font-size: 1em;}
+        .caixa-taxa { width: 110px; flex-shrink: 0; flex-grow: 0; }
+
+        /* LISTA DE PRODUTOS */
+        .produto-item { border: 1px solid #eee; border-radius: 8px; padding: 10px; margin-bottom: 15px; display: flex; gap: 10px; align-items: center; background: #fafafa; }
+        .mini-foto-prod { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; background: #eee; }
+        .produto-info { flex-grow: 1; line-height: 1.2;}
+        .produto-info strong { font-size: 0.95em; color: #2f3542; }
         .produto-info small { display: block; color: #2ed573; font-weight: bold; font-size: 0.9em; margin-top: 3px; }
-        
         .btn-acoes { display: flex; flex-direction: column; gap: 5px; }
-        .btn-pequeno { padding: 8px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8em; border: none; font-weight: bold; transition: 0.2s; text-align: center;}
+        .btn-pequeno { padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 0.75em; border: none; font-weight: bold; text-align: center;}
         .btn-editar { background-color: #eccc68; color: #2f3542; }
         .btn-remover { background-color: white; color: #ff4757; border: 1px solid #ff4757; }
         
-        .dica { font-size: 0.8em; color: #747d8c; margin-top: -10px; margin-bottom: 15px; display: block; }
-        .cat-tag { font-size: 0.75em; background: #dfe4ea; padding: 2px 6px; border-radius: 4px; color: #2f3542; margin-bottom: 3px; display: inline-block;}
+        /* CORREÇÃO DO TEXTO SOBREPOSTO E DICA */
+        .dica { font-size: 0.8em; color: #747d8c; margin-top: -5px; margin-bottom: 10px; display: block; line-height: 1.3;}
+        .dica-alerta { color: #d35400; font-weight: bold; }
+        .cat-tag { font-size: 0.7em; background: #dfe4ea; padding: 2px 6px; border-radius: 4px; color: #2f3542; margin-bottom: 4px; display: inline-block;}
     </style>
 </head>
 <body>
 
     <nav class="nav-admin">
         <div class="logo-nav">AllDelivery</div>
-        <div class="nav-links">
-            <a href="index.html" class="btn-nav">🏠 Mural</a>
-            <a href="#" id="btn-ver-loja" class="btn-nav" target="_blank">🛒 Ver Minha Loja</a>
-            <button onclick="sair()" class="btn-nav btn-sair-nav">Sair</button>
+        <button class="menu-icon" onclick="toggleMenu()">☰</button>
+        
+        <div class="mobile-menu" id="menu-mobile">
+            <a href="index.html">🏠 Mural Regional</a>
+            <a href="#" id="btn-ver-loja" target="_blank">🛒 Ver Minha Loja</a>
+            <button onclick="sair()">Sair do Sistema</button>
         </div>
     </nav>
 
@@ -62,34 +80,39 @@
         <div class="form-bloco">
             <label>📸 Foto da Capa/Fachada:</label>
             <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 15px;">
-                <input type="file" id="foto-loja-file" accept="image/*" style="margin:0;">
-                <button onclick="fazerUploadFotoCapa()" id="btn-upload-capa" class="btn-grande btn-config">Enviar Capa</button>
+                <input type="file" id="foto-loja-file" accept="image/*" style="margin:0; height: 45px; padding: 10px;">
+                <button onclick="fazerUploadFotoCapa()" id="btn-upload-capa" class="btn-icon">➤</button>
             </div>
             <div id="msg-upload-capa" style="font-size: 0.8em; margin-bottom: 15px;"></div>
 
-            <label>🛵 Taxa de Entrega (R$):</label>
-            <input type="number" id="taxa-entrega-admin" step="0.01" placeholder="Ex: 5.00">
-
-            <label>🔑 Chave PIX (Para pagamento):</label>
-            <input type="text" id="pix-admin" placeholder="Ex: 123.456.789-00 ou email@pix.com">
+            <div class="row-dupla">
+                <div class="input-icon caixa-taxa" title="Taxa de Entrega">
+                    <span>🛵</span>
+                    <input type="text" inputmode="decimal" id="taxa-entrega-admin" placeholder="0,00">
+                </div>
+                
+                <div class="input-icon" title="Chave PIX">
+                    <span>🔑</span>
+                    <input type="text" id="pix-admin" placeholder="Sua chave PIX...">
+                </div>
+            </div>
 
             <button onclick="salvarConfiguracoes()" class="btn-grande btn-config">Salvar Configurações</button>
         </div>
 
         <h2>📁 Categorias do Cardápio</h2>
         <div class="form-bloco">
-            <label>Nome do Grupo (Ex: Pizzas, Bebidas)</label>
+            <label>Nome do Grupo</label>
             <input type="text" id="nome-cat" placeholder="Ex: Lanches Artesanais">
             
-            <label>📸 Foto do Grupo (Aparece no topo da loja)</label>
+            <label>📸 Foto do Grupo</label>
             <input type="file" id="foto-cat-file" accept="image/*">
             
             <button class="btn-grande btn-config" onclick="salvarCategoria()" style="background: #3742fa;">+ Criar Categoria</button>
-            <div id="msg-cat" style="text-align: center; margin-top: 10px; font-weight: bold;"></div>
+            <div id="msg-cat" style="text-align: center; margin-top: 10px; font-weight: bold; font-size: 0.9em;"></div>
 
             <div id="lista-categorias-admin" style="margin-top: 15px; display:flex; flex-wrap:wrap; gap:10px;"></div>
         </div>
-
 
         <h2 id="titulo-form-produto">+ Adicionar Novo Produto</h2>
         <div class="form-bloco" id="bloco-form-produto">
@@ -107,15 +130,15 @@
             <input type="text" id="desc-prod" placeholder="Ex: Pão artesanal, blend 180g...">
 
             <label>Preço Base (R$)</label>
-            <input type="number" id="preco-prod" placeholder="Ex: 25.00" step="0.01">
+            <input type="text" inputmode="decimal" id="preco-prod" placeholder="Ex: 25,00">
 
-            <label>Ingredientes Padrão (O cliente pode retirar)</label>
+            <label>Ingredientes Padrão (Podem ser retirados)</label>
             <span class="dica">Separe por VÍRGULA. Ex: Alface, Tomate, Queijo, Cebola</span>
             <input type="text" id="ingredientes-prod" placeholder="Ex: Alface, Tomate, Cebola">
 
-            <label>Adicionais Pagos (Opcionais com valor extra)</label>
-            <span class="dica">Use o formato NOME:PREÇO separados por vírgula. Ex: Bacon:3.50, Ovo:2.00</span>
-            <input type="text" id="adicionais-prod" placeholder="Ex: Bacon:3.50, Ovo:2.00">
+            <label>Adicionais Pagos (Com valor extra)</label>
+            <span class="dica"><span class="dica-alerta">USE PONTO E VÍRGULA PARA SEPARAR!</span><br>Ex: Bacon:3,50; Ovo:2,00; Queijo:4,00</span>
+            <input type="text" id="adicionais-prod" placeholder="Ex: Bacon:3,50; Ovo:2,00">
 
             <label>📸 Foto do Produto (Mande outra para substituir)</label>
             <input type="file" id="foto-prod-file" accept="image/*">
@@ -123,7 +146,7 @@
             <button class="btn-grande btn-salvar" id="btn-salvar-prod" onclick="salvarProduto()">Criar Produto no Cardápio</button>
             <button class="btn-grande" id="btn-cancelar-edit" style="display: none; background: #747d8c; color: white; margin-top: 10px;" onclick="cancelarEdicao()">Cancelar Edição</button>
             
-            <div id="msg-salvar-prod" style="text-align: center; margin-top: 10px; font-weight: bold;"></div>
+            <div id="msg-salvar-prod" style="text-align: center; margin-top: 10px; font-weight: bold; font-size: 0.9em;"></div>
         </div>
 
         <h2>Meu Cardápio</h2>

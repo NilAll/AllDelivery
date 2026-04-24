@@ -6,6 +6,17 @@ let idDaLojaLogada = null;
 let produtosCarregadosAdmin = []; 
 let categoriasCarregadasAdmin = [];
 
+// === MENU MOBILE ===
+window.toggleMenu = function() {
+    document.getElementById('menu-mobile').classList.toggle('active');
+}
+window.onclick = function(event) {
+    if (!event.target.matches('.menu-icon')) {
+        const menu = document.getElementById('menu-mobile');
+        if (menu.classList.contains('active')) menu.classList.remove('active');
+    }
+}
+
 async function verificarSessao() {
     const { data: { session } } = await db.auth.getSession();
     if (!session) { window.location.href = "login.html"; return; }
@@ -18,7 +29,9 @@ async function buscarLojaDoUsuario(userId) {
 
     idDaLojaLogada = loja.id;
     document.getElementById('nome-loja-admin').innerText = loja.nome;
-    document.getElementById('taxa-entrega-admin').value = Number(loja.taxa_entrega).toFixed(2);
+    
+    // Mostra taxa com vírgula
+    document.getElementById('taxa-entrega-admin').value = Number(loja.taxa_entrega).toFixed(2).replace('.', ',');
     document.getElementById('pix-admin').value = loja.chave_pix || '';
 
     const urlBase = window.location.href.split('admin.html')[0];
@@ -28,7 +41,6 @@ async function buscarLojaDoUsuario(userId) {
     carregarProdutosAdmin();
 }
 
-// === GESTÃO DE CATEGORIAS ===
 async function carregarCategoriasAdmin() {
     const { data: categorias } = await db.from('categorias').select('*').eq('loja_id', idDaLojaLogada).order('nome');
     const selectCat = document.getElementById('cat-prod');
@@ -42,7 +54,7 @@ async function carregarCategoriasAdmin() {
         categorias.forEach(cat => {
             selectCat.innerHTML += `<option value="${cat.id}">${cat.nome}</option>`;
             listaHTML.innerHTML += `
-                <div style="background:white; border:1px solid #ccc; padding:8px 12px; border-radius:8px; display:flex; gap:10px; align-items:center; font-size:0.9em; font-weight:bold;">
+                <div style="background:white; border:1px solid #ccc; padding:6px 10px; border-radius:6px; display:flex; gap:10px; align-items:center; font-size:0.85em; font-weight:bold;">
                     ${cat.nome}
                     <button onclick="removerCategoria('${cat.id}')" style="background:#ff4757; border:none; color:white; cursor:pointer; border-radius:4px; padding:3px 6px;">X</button>
                 </div>
@@ -79,20 +91,17 @@ window.salvarCategoria = async function() {
         document.getElementById('foto-cat-file').value = '';
         carregarCategoriasAdmin();
         setTimeout(() => msg.innerText='', 3000);
-    } else {
-        msg.innerText = "❌ Erro ao criar.";
-    }
+    } else { msg.innerText = "❌ Erro ao criar."; }
 }
 
 window.removerCategoria = async function(id) {
     if(confirm('Tem certeza? Os produtos dessa categoria ficarão "Sem grupo".')) {
         await db.from('categorias').delete().eq('id', id);
         carregarCategoriasAdmin();
-        carregarProdutosAdmin(); // Recarrega produtos pois a categoria sumiu
+        carregarProdutosAdmin(); 
     }
 }
 
-// === GESTÃO DE PRODUTOS ===
 async function carregarProdutosAdmin() {
     const { data: produtos, error } = await db.from('produtos').select('*').eq('loja_id', idDaLojaLogada).order('created_at', { ascending: false });
     const listaHTML = document.getElementById('lista-produtos-admin');
@@ -103,10 +112,9 @@ async function carregarProdutosAdmin() {
     produtosCarregadosAdmin = produtos; 
 
     produtos.forEach((produto) => {
-        let preco = Number(produto.preco);
+        let precoFormatado = Number(produto.preco).toFixed(2).replace('.', ','); 
         let foto = produto.imagem_url || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=100&auto=format&fit=crop';
         
-        // Pega o nome da categoria para mostrar na tag
         let nomeCat = "Sem Grupo";
         if(produto.categoria_id) {
             let catObj = categoriasCarregadasAdmin.find(c => c.id === produto.categoria_id);
@@ -119,7 +127,7 @@ async function carregarProdutosAdmin() {
                 <div class="produto-info">
                     <span class="cat-tag">${nomeCat}</span><br>
                     <strong>${produto.nome}</strong>
-                    <small>R$ ${preco.toFixed(2)}</small>
+                    <small>R$ ${precoFormatado}</small>
                 </div>
                 <div class="btn-acoes">
                     <button class="btn-pequeno btn-editar" onclick="carregarDadosEdicao('${produto.id}')">Editar</button>
@@ -136,16 +144,16 @@ window.carregarDadosEdicao = function(id) {
 
     document.getElementById('titulo-form-produto').innerText = "✏️ Editar Produto";
     document.getElementById('edit-prod-id').value = prod.id;
-    
-    // Marca a categoria correta no Select
     document.getElementById('cat-prod').value = prod.categoria_id || ''; 
-
     document.getElementById('nome-prod').value = prod.nome;
     document.getElementById('desc-prod').value = prod.descricao || '';
-    document.getElementById('preco-prod').value = prod.preco;
-
+    
+    // Traz o preço e os adicionais com vírgula para editar
+    document.getElementById('preco-prod').value = Number(prod.preco).toFixed(2).replace('.', ',');
     document.getElementById('ingredientes-prod').value = (prod.ingredientes || []).join(', ');
-    document.getElementById('adicionais-prod').value = (prod.adicionais || []).map(a => `${a.nome}:${a.preco}`).join(', ');
+    
+    // Adicionais com PONTO E VÍRGULA e preços com VÍRGULA
+    document.getElementById('adicionais-prod').value = (prod.adicionais || []).map(a => `${a.nome}:${Number(a.preco).toFixed(2).replace('.', ',')}`).join('; ');
 
     let btnSalvar = document.getElementById('btn-salvar-prod');
     btnSalvar.innerText = "Atualizar Produto";
@@ -175,24 +183,29 @@ window.cancelarEdicao = function() {
 
 async function salvarProduto() {
     const editId = document.getElementById('edit-prod-id').value; 
-    const catId = document.getElementById('cat-prod').value; // Pega categoria
+    const catId = document.getElementById('cat-prod').value; 
     const nome = document.getElementById('nome-prod').value;
     const desc = document.getElementById('desc-prod').value;
-    const preco = document.getElementById('preco-prod').value;
+    
+    let precoBruto = document.getElementById('preco-prod').value.replace(',', '.');
+    const preco = parseFloat(precoBruto);
     
     const ingRaw = document.getElementById('ingredientes-prod').value;
     const arrayIngredientes = ingRaw ? ingRaw.split(',').map(i => i.trim()).filter(i => i) : [];
 
+    // LÓGICA ATUALIZADA: Agora ele divide por PONTO E VÍRGULA (;)
     const adicRaw = document.getElementById('adicionais-prod').value;
-    const arrayAdicionais = adicRaw ? adicRaw.split(',').map(item => {
+    const arrayAdicionais = adicRaw ? adicRaw.split(';').map(item => {
         let partes = item.split(':');
-        return { nome: partes[0].trim(), preco: parseFloat(partes[1]) || 0 };
-    }).filter(i => i.nome) : [];
+        if(partes.length < 2) return null;
+        let precoAdic = partes[1].trim().replace(',', '.'); // Converte vírgula para ponto no BD
+        return { nome: partes[0].trim(), preco: parseFloat(precoAdic) || 0 };
+    }).filter(i => i && i.nome) : [];
 
     const arquivoFoto = document.getElementById('foto-prod-file').files[0];
     const msg = document.getElementById('msg-salvar-prod');
 
-    if (!nome || !preco) { alert("Preencha Nome e Preço."); return; }
+    if (!nome || isNaN(preco)) { alert("Preencha Nome e um Preço válido."); return; }
     
     msg.innerText = editId ? "⏳ Atualizando..." : "⏳ Criando produto...";
     msg.style.color = "#e67e22";
@@ -212,10 +225,10 @@ async function salvarProduto() {
     let dadosBanco = { 
         nome: nome, 
         descricao: desc, 
-        preco: parseFloat(preco),
+        preco: preco,
         ingredientes: arrayIngredientes,
         adicionais: arrayAdicionais,
-        categoria_id: catId ? catId : null // Salva Null se não escolher grupo
+        categoria_id: catId ? catId : null 
     };
 
     if(urlFinalFoto) dadosBanco.imagem_url = urlFinalFoto; 
@@ -235,6 +248,7 @@ async function salvarProduto() {
         msg.style.color = "#2ed573";
         cancelarEdicao(); 
         carregarProdutosAdmin();
+        setTimeout(() => msg.innerText='', 3000);
     } else { msg.innerText = "❌ Erro ao salvar."; }
 }
 
@@ -245,25 +259,27 @@ async function removerProduto(idProduto) {
     }
 }
 
-// === CONFIGURAÇÕES DA LOJA ===
 window.fazerUploadFotoCapa = async function() {
     const inputArquivo = document.getElementById('foto-loja-file');
     const msg = document.getElementById('msg-upload-capa');
     if (inputArquivo.files.length === 0) { alert("Selecione uma foto."); return; }
-    msg.innerText = "⏳ Enviando capa...";
+    msg.innerText = "⏳";
     const arquivo = inputArquivo.files[0];
     const nomeArquivo = `capa_${idDaLojaLogada}_${Date.now()}.${arquivo.name.split('.').pop()}`;
     const { error: uploadError } = await db.storage.from('logos').upload(nomeArquivo, arquivo);
     if (!uploadError) {
         const { data } = db.storage.from('logos').getPublicUrl(nomeArquivo);
         await db.from('lojas').update({ logo_url: data.publicUrl }).eq('id', idDaLojaLogada);
-        msg.innerText = "✅ Capa atualizada!";
+        msg.innerText = "✅";
+        setTimeout(() => msg.innerText='', 3000);
     } else { msg.innerText = "❌ Erro."; }
 }
 
 window.salvarConfiguracoes = async function() {
-    const novaTaxa = parseFloat(document.getElementById('taxa-entrega-admin').value) || 0;
+    let taxaBruta = document.getElementById('taxa-entrega-admin').value.replace(',', '.');
+    const novaTaxa = parseFloat(taxaBruta) || 0;
     const novoPix = document.getElementById('pix-admin').value;
+    
     await db.from('lojas').update({ taxa_entrega: novaTaxa, chave_pix: novoPix }).eq('id', idDaLojaLogada);
     alert("Taxa e Chave PIX atualizadas com sucesso!");
 }

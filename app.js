@@ -20,7 +20,7 @@ async function carregarLoja() {
     dadosLoja = loja;
     document.getElementById('nome-loja').innerText = dadosLoja.nome;
     if(loja.logo_url) document.getElementById('header-loja-bg').style.backgroundImage = `url('${loja.logo_url}')`;
-    document.getElementById('taxa-modal').innerText = Number(dadosLoja.taxa_entrega).toFixed(2);
+    document.getElementById('taxa-modal').innerText = Number(dadosLoja.taxa_entrega).toFixed(2).replace('.', ',');
     
     carregarCategorias(dadosLoja.id);
     carregarProdutos(dadosLoja.id);
@@ -75,7 +75,7 @@ function renderizarProdutosNaTela() {
 
     produtosParaMostrar.forEach((produto) => {
         let indexReal = produtosCarregados.findIndex(p => p.id === produto.id);
-        let preco = Number(produto.preco);
+        let precoFormatado = Number(produto.preco).toFixed(2).replace('.', ',');
         let foto = produto.imagem_url || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=100&auto=format&fit=crop';
         
         listaHTML.innerHTML += `
@@ -85,10 +85,10 @@ function renderizarProdutosNaTela() {
                     <div class="produto-textos">
                         <h3>${produto.nome}</h3>
                         <p>${produto.descricao || ''}</p>
-                        <strong>R$ ${preco.toFixed(2)}</strong>
+                        <strong>R$ ${precoFormatado}</strong>
                     </div>
                     <div class="controle-add">
-                        <button class="btn-add" id="btn-${produto.id}" onclick="event.stopPropagation(); cliqueRapidoCard('${produto.id}', '${produto.nome}', ${preco})">+</button>
+                        <button class="btn-add" id="btn-${produto.id}" onclick="event.stopPropagation(); cliqueRapidoCard('${produto.id}', '${produto.nome}', ${produto.preco})">+</button>
                         <span class="qtd-no-card" id="qtd-${produto.id}"></span>
                     </div>
                 </div>
@@ -99,17 +99,12 @@ function renderizarProdutosNaTela() {
     atualizarCarrinhoVisual(true);
 }
 
-// === LÓGICA DO FILTRO ATUALIZADA ===
 window.filtrarPorCategoria = function(id, nome) {
     filtroCategoriaAtivo = id;
-    
-    // Esconde a vitrine de grupos para limpar a tela
     document.getElementById('container-categorias').style.display = 'none';
-    
     const caixaFiltro = document.getElementById('filtro-ativo');
     caixaFiltro.style.display = 'flex';
     document.getElementById('nome-filtro').innerText = `Mostrando: ${nome}`;
-    
     renderizarProdutosNaTela();
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -117,18 +112,13 @@ window.filtrarPorCategoria = function(id, nome) {
 window.limparFiltro = function() {
     filtroCategoriaAtivo = null;
     document.getElementById('filtro-ativo').style.display = 'none';
-    
-    // Mostra a vitrine de grupos novamente se a loja tiver categorias
     if (categoriasCarregadas.length > 0) {
         document.getElementById('container-categorias').style.display = 'block';
     }
-    
     renderizarProdutosNaTela();
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-
-// === RESTO DO CÓDIGO ===
 window.abrirDetalhe = function(index) {
     const prod = produtosCarregados[index];
     precoBaseModalAtual = Number(prod.preco);
@@ -154,7 +144,7 @@ window.abrirDetalhe = function(index) {
     if (adicionais.length > 0) {
         let htmlAdic = `<div class="titulo-opcoes">Turbine seu Pedido (Opcional)</div><ul class="lista-opcoes">`;
         adicionais.forEach(adic => {
-            htmlAdic += `<li><label><div class="label-esquerda"><input type="checkbox" class="check-extra" value="${adic.nome}" data-preco="${adic.preco}" onchange="recalcularPrecoModal()"> + ${adic.nome}</div><span class="preco-extra">+ R$ ${Number(adic.preco).toFixed(2)}</span></label></li>`;
+            htmlAdic += `<li><label><div class="label-esquerda"><input type="checkbox" class="check-extra" value="${adic.nome}" data-preco="${adic.preco}" onchange="recalcularPrecoModal()"> + ${adic.nome}</div><span class="preco-extra">+ R$ ${Number(adic.preco).toFixed(2).replace('.', ',')}</span></label></li>`;
         });
         htmlAdic += `</ul>`;
         areaOpcoes.innerHTML += htmlAdic;
@@ -170,7 +160,7 @@ window.fecharDetalhe = function() { document.getElementById('modal-detalhe').sty
 window.recalcularPrecoModal = function() {
     let total = precoBaseModalAtual;
     document.querySelectorAll('.check-extra:checked').forEach(chk => { total += parseFloat(chk.dataset.preco); });
-    document.getElementById('detalhe-preco').innerText = `R$ ${total.toFixed(2)}`;
+    document.getElementById('detalhe-preco').innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
 }
 
 function processarModalEAdicionar(prod) {
@@ -208,11 +198,11 @@ function atualizarCarrinhoVisual(apenasVisual = false) {
     let totalItens = carrinho.reduce((sum, item) => sum + item.qtd, 0);
 
     document.getElementById('qtd-itens').innerText = totalItens;
-    document.getElementById('total-barra').innerText = subtotal.toFixed(2);
-    document.getElementById('subtotal-modal').innerText = subtotal.toFixed(2);
+    document.getElementById('total-barra').innerText = subtotal.toFixed(2).replace('.', ',');
+    document.getElementById('subtotal-modal').innerText = subtotal.toFixed(2).replace('.', ',');
     
     let taxa = Number(dadosLoja.taxa_entrega || 0);
-    document.getElementById('total-final-modal').innerText = carrinho.length === 0 ? "0.00" : (subtotal + taxa).toFixed(2);
+    document.getElementById('total-final-modal').innerText = carrinho.length === 0 ? "0,00" : (subtotal + taxa).toFixed(2).replace('.', ',');
 
     document.querySelectorAll('.produto-card').forEach(card => {
         let produtoId = card.id.replace('card-', '');
@@ -243,11 +233,11 @@ function renderizarItensNoModal() {
         listaModal.innerHTML += `
             <div class="item-carrinho">
                 <div style="flex-grow: 1; padding-right: 15px;">
-                    <strong>${item.qtd}x ${item.nome}</strong> (R$ ${(item.precoFinal).toFixed(2)}/un)
+                    <strong>${item.qtd}x ${item.nome}</strong> (R$ ${(item.precoFinal).toFixed(2).replace('.', ',')}/un)
                     ${textoDetalhes ? `<span class="item-detalhes-texto">${textoDetalhes}</span>` : ''}
                 </div>
                 <div style="text-align: right;">
-                    <strong style="display:block; margin-bottom: 5px;">R$ ${subtotalItem.toFixed(2)}</strong>
+                    <strong style="display:block; margin-bottom: 5px;">R$ ${subtotalItem.toFixed(2).replace('.', ',')}</strong>
                     <button class="btn-remover-item" onclick="removerDoCarrinho(${index})">- Tirar 1</button>
                 </div>
             </div>`;
@@ -271,7 +261,7 @@ window.finalizarPedido = function() {
     
     carrinho.forEach((item, index) => {
         let subtotalItem = item.precoFinal * item.qtd;
-        mensagem += `*Item ${index + 1}: ${item.qtd}x ${item.nome}* (R$ ${subtotalItem.toFixed(2)})\n`;
+        mensagem += `*Item ${index + 1}: ${item.qtd}x ${item.nome}* (R$ ${subtotalItem.toFixed(2).replace('.', ',')})\n`;
         if(item.removidos.length > 0) { mensagem += `   🚫 *ATENÇÃO - RETIRAR:* ${item.removidos.join(', ')}\n`; }
         if(item.extras.length > 0) { mensagem += `   ➕ *ADICIONAIS:* ${item.extras.map(e => e.nome).join(', ')}\n`; }
         mensagem += `\n`; 
@@ -282,9 +272,9 @@ window.finalizarPedido = function() {
     let totalFinal = subtotal + taxa;
     
     mensagem += `--------------------------------------\n`;
-    mensagem += `*Subtotal:* R$ ${subtotal.toFixed(2)}\n`;
-    mensagem += `*Taxa de Entrega:* R$ ${taxa.toFixed(2)}\n`;
-    mensagem += `*TOTAL A PAGAR: R$ ${totalFinal.toFixed(2)}*\n`;
+    mensagem += `*Subtotal:* R$ ${subtotal.toFixed(2).replace('.', ',')}\n`;
+    mensagem += `*Taxa de Entrega:* R$ ${taxa.toFixed(2).replace('.', ',')}\n`;
+    mensagem += `*TOTAL A PAGAR: R$ ${totalFinal.toFixed(2).replace('.', ',')}*\n`;
     mensagem += `--------------------------------------\n\n`;
     
     if (dadosLoja.chave_pix) {
